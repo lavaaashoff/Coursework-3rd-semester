@@ -39,11 +39,10 @@ namespace CouseWork3Semester.Models
         }
 
         // Метод из UML: ИнициализироватьЗаселение
-        public void InitializeSettlement(Guid ID, List<IRoomOccupant> occupants, IRoom room, IDocument document, DateTime date)
+        public void InitializeSettlement(List<IRoomOccupant> occupants, IRoom room, IDocument document, DateTime date)
         {
             ValidateInitialization(occupants, room, document, date);
 
-            Id = ID;
             Occupants = new List<IRoomOccupant>(occupants);
             Room = room;
             Document = document;
