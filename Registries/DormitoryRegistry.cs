@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace CouseWork3Semester.Models
+namespace CouseWork3Semester.Registries
 {
     public class DormitoryRegistry : IDormitoryRegistry
     {
