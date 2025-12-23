@@ -22,6 +22,7 @@ namespace CouseWork3Semester.Interfaces
         List<IRoomOccupant> GetAllOccupants();
         List<IResident> GetAllResidents();
         List<IChild> GetAllChildren();
+        List<IChild> GetChildrenOfResident(Guid parentId);
 
         // Дополнительные методы
         bool RemoveOccupant(Guid id);

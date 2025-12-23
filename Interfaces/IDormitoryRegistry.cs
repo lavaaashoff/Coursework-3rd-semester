@@ -14,5 +14,9 @@ namespace CouseWork3Semester.Interfaces
         bool RemoveDormitory(int number);
         IDormitory GetDormitoryByNumber(int number);
         List<IDormitory> GetAllDormitories();
+        int GetTotalPlacesCount();
+        int GetTotalOccupiedPlacesCount();
+        double GetOverallOccupancyPercentage();
+        int GetTotalAvailablePlacesCount();
     }
 }
