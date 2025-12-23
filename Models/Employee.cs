@@ -35,6 +35,14 @@ namespace CouseWork3Semester.Models
             return Role;
         }
 
+        public void ChangePassword(string newPassword)
+        {
+            if (string.IsNullOrWhiteSpace(newPassword))
+                throw new ArgumentException("Новый пароль не может быть пустым", nameof(newPassword));
+
+            Password = newPassword;
+        }
+
         // Вспомогательные методы
         private void Validate(string login, string password, string fullName, string role)
         {
