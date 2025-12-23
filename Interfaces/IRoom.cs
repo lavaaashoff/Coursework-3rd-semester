@@ -12,10 +12,10 @@ namespace CouseWork3Semester.Interfaces
         int Type { get; }
         int Floor { get; }
 
-        bool AddResident(Resident resident);
-        bool RemoveResident(Guid residentId);
+        bool AddOccupant(IRoomOccupant resident);
+        bool RemoveOccupant(Guid residentId);
         int GetAvailablePlacesCount();
         bool CheckAvailablePlaces();
-        List<Resident> GetResidentsList();
+        List<IRoomOccupant> GetAllOccupants();
     }
 }

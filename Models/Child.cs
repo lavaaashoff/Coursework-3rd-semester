@@ -10,18 +10,13 @@ namespace CouseWork3Semester.Models
         public Guid Id { get; private set; }
         public string FullName { get; private set; }
         public DateTime BirthDate { get; private set; }
-
-        // Дополнительные свойства для ребенка
-        public string BirthCertificateNumber { get; private set; }
         public Guid ParentResidentId { get; private set; }
 
-        public Child(string fullName, DateTime birthDate, string birthCertificateNumber,
-                     Guid parentResidentId)
+        public Child(string fullName, DateTime birthDate, Guid parentResidentId)
         {
             Id = Guid.NewGuid();
             FullName = fullName;
             BirthDate = birthDate;
-            BirthCertificateNumber = birthCertificateNumber;
             ParentResidentId = parentResidentId;
         }
 

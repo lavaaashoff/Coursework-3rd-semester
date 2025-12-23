@@ -14,7 +14,7 @@ namespace CouseWork3Semester.Models
         public int Floor { get; private set; }
 
         // Приватное поле для списка жильцов
-        private List<Resident> residents;
+        private List<IRoomOccupant> occupants;
 
         // Конструктор
         public Room(int number, double area, int type, int floor)
@@ -23,42 +23,42 @@ namespace CouseWork3Semester.Models
             Area = area;
             Type = type;
             Floor = floor;
-            residents = new List<Resident>();
+            occupants = new List<IRoomOccupant>();
         }
 
         // Методы интерфейса
 
-        public bool AddResident(Resident resident)
+        public bool AddOccupant(IRoomOccupant occupant)
         {
-            if (resident == null)
-                throw new ArgumentNullException(nameof(resident));
+            if (occupant == null)
+                throw new ArgumentNullException(nameof(occupant));
 
             // Проверяем, есть ли свободные места
             if (!CheckAvailablePlaces())
                 return false;
 
             // Проверяем, не живет ли уже такой жилец в комнате
-            if (residents.Exists(r => r.Id == resident.Id))
+            if (occupants.Exists(r => r.Id == occupant.Id))
                 return false;
 
-            residents.Add(resident);
+            occupants.Add(occupant);
             return true;
         }
 
-        public bool RemoveResident(Guid residentId)
+        public bool RemoveOccupant(Guid occupantId)
         {
-            Resident residentToRemove = residents.Find(r => r.Id == residentId);
-            if (residentToRemove != null)
+            IRoomOccupant occupantToRemove = occupants.Find(o => o.Id == occupantId);
+            if (occupantToRemove != null)
             {
-                return residents.Remove(residentToRemove);
+                return occupants.Remove(occupantToRemove);
             }
             return false;
         }
 
         public int GetAvailablePlacesCount()
         {
-            int maxResidents = Type;
-            return maxResidents - residents.Count;
+            int maxOccupants = Type;
+            return maxOccupants - occupants.Count;
         }
 
         public bool CheckAvailablePlaces()
@@ -66,10 +66,9 @@ namespace CouseWork3Semester.Models
             return GetAvailablePlacesCount() > 0;
         }
 
-        public List<Resident> GetResidentsList()
+        public List<IRoomOccupant> GetAllOccupants()
         {
-            // Возвращаем копию списка, чтобы защитить исходные данные
-            return new List<Resident>(residents);
+            return new List<IRoomOccupant>(occupants);
         }
     }
 }
