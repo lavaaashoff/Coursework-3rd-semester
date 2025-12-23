@@ -1,26 +1,33 @@
-﻿using System;
+﻿using CouseWork3Semester.Models;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace CouseWork3Semester.Interfaces
 {
-    public interface IResidentRegistry
+    public interface IOccupantRegistry
     {
-        // Свойство из UML
-        Dictionary<Guid, IResident> Residents { get; }
+        // Храним ВСЕХ обитателей, не только взрослых
+        Dictionary<Guid, IRoomOccupant> AllOccupants { get; }
 
-        // Методы из UML
+        // Основные методы
+        void AddOccupant(IRoomOccupant occupant);
+        IRoomOccupant FindOccupantById(Guid id);
+
+        // Методы для работы с конкретными типами
         void AddResident(IResident resident);
-        IResident FindResidentById(Guid id);
+        void AddChild(IChild child);
 
-        // Дополнительные полезные методы
+        // Поиск по типу
+        List<IRoomOccupant> GetAllOccupants();
         List<IResident> GetAllResidents();
-        bool RemoveResident(Guid id);
-        bool ContainsResident(Guid id);
-        int GetResidentsCount();
+        List<IChild> GetAllChildren();
 
-        // Методы поиска
-        List<IResident> FindResidentsByName(string name);
-        List<IResident> GetResidentsByAgeRange(int minAge, int maxAge);
+        // Дополнительные методы
+        bool RemoveOccupant(Guid id);
+        bool ContainsOccupant(Guid id);
+        int GetOccupantsCount();
+        int GetResidentsCount();
+        int GetChildrenCount();
     }
 }

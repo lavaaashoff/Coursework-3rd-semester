@@ -54,6 +54,11 @@ namespace CouseWork3Semester.Registries
 
         // Получение списков по типам
 
+        public List<IRoomOccupant> GetAllOccupants()
+        {
+            return AllOccupants.Values.ToList();
+        }
+
         public List<IResident> GetAllResidents()
         {
             return AllOccupants.Values
@@ -69,6 +74,7 @@ namespace CouseWork3Semester.Registries
                 .Cast<IChild>()
                 .ToList();
         }
+
 
         // Дополнительные методы
 
