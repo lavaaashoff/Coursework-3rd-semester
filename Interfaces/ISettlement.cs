@@ -15,7 +15,7 @@ namespace CouseWork3Semester.Interfaces
         bool IsActive { get; } // Активно
 
         // Методы из UML
-        void InitializeSettlement(Guid ID, List<IRoomOccupant> occupants, IRoom room, IDocument document, DateTime date)
+        void InitializeSettlement(Guid ID, List<IRoomOccupant> occupants, IRoom room, IDocument document, DateTime date);
         void PerformSettlement();
         void CancelSettlement(string reason);
         void CompleteSettlement();
