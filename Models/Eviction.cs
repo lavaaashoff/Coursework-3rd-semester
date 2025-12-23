@@ -12,6 +12,7 @@ namespace CouseWork3Semester.Models
         private const int MAX_OCCUPANTS_PER_EVICTION = 10;
 
         // Свойства из UML (через интерфейсы)
+        public Guid Id { get; private set; }
         public DateTime EvictionDate { get; private set; } // ДатаВыселения
         public string Reason { get; private set; } // Причина
         public IRoom Room { get; private set; } // Комната
@@ -28,16 +29,18 @@ namespace CouseWork3Semester.Models
         // Конструктор
         public Eviction()
         {
+            Id = Guid.NewGuid();
             Occupants = new List<IRoomOccupant>();
             Status = EvictionStatus.Initialized;
             _isExecuted = false;
         }
 
         // Метод из UML: ИнициализироватьВыселение
-        public void InitializeEviction(List<IRoomOccupant> occupants, IRoom room, string reason, ISettlement relatedSettlement)
+        public void InitializeEviction(Guid ID, List<IRoomOccupant> occupants, IRoom room, string reason, ISettlement relatedSettlement)
         {
             ValidateInitialization(occupants, room, reason, relatedSettlement);
 
+            Id = ID;
             Occupants = new List<IRoomOccupant>(occupants);
             Room = room;
             Reason = reason;

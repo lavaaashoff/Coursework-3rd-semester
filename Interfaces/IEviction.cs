@@ -7,6 +7,7 @@ namespace CouseWork3Semester.Interfaces
     public interface IEviction
     {
         // Свойства из UML
+        Guid Id { get; }
         DateTime EvictionDate { get; } // ДатаВыселения
         string Reason { get; } // Причина
         IRoom Room { get; } // Комната
@@ -14,7 +15,7 @@ namespace CouseWork3Semester.Interfaces
         ISettlement RelatedSettlement { get; } // СвязанноеЗаселение
 
         // Методы из UML
-        void InitializeEviction(List<IRoomOccupant> occupants, IRoom room, string reason, ISettlement relatedSettlement);
+        void InitializeEviction(Guid ID, List<IRoomOccupant> occupants, IRoom room, string reason, ISettlement relatedSettlement);
         bool PerformEviction();
         string GetEvictionInfo();
 

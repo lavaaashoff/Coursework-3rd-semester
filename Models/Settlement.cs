@@ -13,6 +13,7 @@ namespace CouseWork3Semester.Models
         private const int MIN_OCCUPANTS_PER_SETTLEMENT = 1;
 
         // Свойства из UML (через интерфейсы)
+        public Guid Id { get; private set; }
         public DateTime SettlementDate { get; private set; } // ДатаЗаселения
         public List<IRoomOccupant> Occupants { get; private set; } // Жильцы
         public IRoom Room { get; private set; } // Комната
@@ -31,16 +32,18 @@ namespace CouseWork3Semester.Models
         // Конструктор
         public Settlement()
         {
+            Id = Guid.NewGuid();
             Occupants = new List<IRoomOccupant>();
             Status = SettlementStatus.Initialized;
             IsActive = false;
         }
 
         // Метод из UML: ИнициализироватьЗаселение
-        public void InitializeSettlement(List<IRoomOccupant> occupants, IRoom room, IDocument document, DateTime date)
+        public void InitializeSettlement(Guid ID, List<IRoomOccupant> occupants, IRoom room, IDocument document, DateTime date)
         {
             ValidateInitialization(occupants, room, document, date);
 
+            Id = ID;
             Occupants = new List<IRoomOccupant>(occupants);
             Room = room;
             Document = document;
