@@ -5,7 +5,7 @@ using System.Text;
 
 namespace CouseWork3Semester.Models
 {
-    public class Child : IRoomOccupant
+    public class Child : IChild
     {
         public Guid Id { get; private set; }
         public string FullName { get; private set; }
