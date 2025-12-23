@@ -6,13 +6,10 @@ using CouseWork3Semester.Models;
 
 namespace CouseWork3Semester.Interfaces
 {
-    public interface IResident
+    public interface IResident : IRoomOccupant
     {
-        Guid Id { get; }
         int RegistrationNumber { get; }
-        string FullName { get; }
         Gender Gender { get; }
-        DateTime BirthDate { get; }
         Passport Passport { get; }
         bool WorkStatus { get; set; }
         string? Workplace { get; set; }
@@ -23,6 +20,5 @@ namespace CouseWork3Semester.Interfaces
 
 
         string GetFullInfo();
-        int GetAge();
     }
 }

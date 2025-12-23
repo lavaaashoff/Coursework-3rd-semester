@@ -77,5 +77,10 @@ namespace CouseWork3Semester.Models
 
             return age;
         }
+
+        public string GetOccupantType()
+        {
+            return "Adult";
+        }
     }
 }
