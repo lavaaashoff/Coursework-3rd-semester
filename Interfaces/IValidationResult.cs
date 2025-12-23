@@ -9,5 +9,8 @@ namespace CouseWork3Semester.Interfaces
         bool IsValid { get; }
         List<string> Errors { get; }
         string Message { get; }
+
+        void AddError(string error);
+
     }
 }
