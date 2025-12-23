@@ -22,6 +22,8 @@ namespace CouseWork3Semester.Interfaces
         double GetOccupancyPercentage();
         List<IRoom> GetAvailableRoomsList();
 
+        int GetTotalOccupantsCount();
+
         // Дополнительные методы (опционально)
         List<IRoom> GetAllRooms();
         int GetOccupiedPlacesCount();
