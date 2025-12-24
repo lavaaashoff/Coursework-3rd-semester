@@ -1,4 +1,5 @@
-﻿using CouseWork3Semester.Interfaces;
+﻿using CouseWork3Semester.Enums;
+using CouseWork3Semester.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -94,9 +95,9 @@ namespace CouseWork3Semester.Services
             return currentUser != null;
         }
 
-        public bool HasRole(string requiredRole)
+        public bool HasRole(UserRole requiredRole)
         {
-            if (currentUser == null || string.IsNullOrEmpty(requiredRole))
+            if (currentUser == null)
                 return false;
 
             return currentUser.Role == requiredRole;

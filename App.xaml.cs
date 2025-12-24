@@ -3,7 +3,7 @@ using CouseWork3Semester.Models;
 using CouseWork3Semester.Presenters;
 using CouseWork3Semester.Services;
 using CouseWork3Semester.Views;
-using System.Collections.Generic;
+using CouseWork3Semester.Enums;
 using System.Windows;
 
 namespace CouseWork3Semester
@@ -15,7 +15,7 @@ namespace CouseWork3Semester
             base.OnStartup(e);
 
             // Список сотрудников (пример данных) ПОТОМ НАДО УДАЛИТЬ!!!!!!!!!!!!!!!!!!!!!!!!!!
-            var employees = new List<IEmployee> { new Employee("lvshf", "123", "Vital Suhomlinvo", "Администратор")};
+            var employees = new List<IEmployee> { new Employee("lvshf", "123", "Vital Suhomlinvo", UserRole.Administrator)};
             var authManager = new AuthManager(employees);
 
             var loginView = new LoginView();
