@@ -69,6 +69,19 @@ namespace CouseWork3Semester.Presenters
 
                 dormitoriesView.Show();
             };
+
+            view.ManageRoomsButton.Click += (s, e) =>
+            {
+                var roomsView = new RoomsView();
+                var roomsPresenter = new RoomsPresenter(
+                    roomsView,
+                    _dormitoryRegistry,
+                    _permissionManager,
+                    _currentEmployee
+                );
+
+                roomsView.Show();
+            };
         }
     }
 }
