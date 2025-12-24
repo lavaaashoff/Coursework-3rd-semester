@@ -1,160 +1,66 @@
-﻿using CouseWork3Semester.Interfaces;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
+using CouseWork3Semester.Interfaces;
+using CouseWork3Semester.Enums;
 
 namespace CouseWork3Semester.Services
 {
     public class PermissionManager : IPermissionManager
     {
-        // Словарь прав для каждой роли
-        private readonly Dictionary<string, List<string>> rolePermissions;
+        private readonly Dictionary<UserRole, List<string>> rolePermissions;
 
-        // Конструктор
         public PermissionManager()
         {
-            rolePermissions = new Dictionary<string, List<string>>
+            // Определяем роли и их действия
+            rolePermissions = new Dictionary<UserRole, List<string>>
             {
-                // Администратор - все права
-                ["Администратор"] = new List<string>
+                [UserRole.Administrator] = new List<string>
                 {
-                    "Просмотр_всех_данных",
-                    "Редактирование_общежитий",
-                    "Редактирование_комнат",
-                    "Редактирование_жильцов",
-                    "Управление_оплатами",
-                    "Генерация_отчетов",
-                    "Управление_сотрудниками",
-                    "Управление_правами"
+                    "ManageDormitories", "EditDormitories",
+                    "ManageRooms", "EditRooms",
+                    "ManageOccupants", "EditOccupants",
+                    "ManageDocuments", "EditDocuments",
+                    "ManageEvictions", "EditEvictions",
+                    "ManageInventory", "EditInventory",
+                    "GenerateReports", "ViewAllData"
                 },
-
-                // Менеджер - большинство прав
-                ["Менеджер"] = new List<string>
+                [UserRole.Commandant] = new List<string>
                 {
-                    "Просмотр_всех_данных",
-                    "Редактирование_комнат",
-                    "Редактирование_жильцов",
-                    "Управление_оплатами",
-                    "Генерация_отчетов"
+                    "ManageOccupants", "EditOccupants",
+                    "ManageRooms", "EditRoomStatus",
+                    "ManageDocuments", "EditDocuments",
+                    "ManageEvictions", "EditEvictions",
+                    "ManageInventory", "EditInventory",
+                    "GenerateReportsForMyData", "ViewOwnData"
                 },
-
-                // Дежурный - ограниченные права
-                ["Дежурный"] = new List<string>
+                [UserRole.AdminStaff] = new List<string>
                 {
-                    "Просмотр_общежитий",
-                    "Просмотр_комнат",
-                    "Просмотр_жильцов",
-                    "Экстренное_редактирование"
-                },
-
-                // Бухгалтер - права связанные с финансами
-                ["Бухгалтер"] = new List<string>
-                {
-                    "Просмотр_оплат",
-                    "Управление_оплатами",
-                    "Генерация_финансовых_отчетов",
-                    "Просмотр_жильцов"
+                    "ViewAllData",
+                    "GenerateReports",
+                    "FilterData"
                 }
             };
         }
 
-        // Реализация методов интерфейса
-
-        public bool CanEmployeeDoAction(IEmployee employee, string action)
+        // Проверить, может ли пользователь с заданной ролью выполнить действие
+        public bool CanRolePerformAction(UserRole role, string action)
         {
-            if (employee == null)
-                throw new ArgumentNullException(nameof(employee));
-
-            if (string.IsNullOrWhiteSpace(action))
-                throw new ArgumentException("Действие не может быть пустым", nameof(action));
-
-            // Получаем роль сотрудника
-            var role = employee.Role;
-
-            // Проверяем, есть ли такая роль в словаре
-            if (!rolePermissions.ContainsKey(role))
-                return false;
-
-            // Проверяем, есть ли у этой роли нужное право
-            return rolePermissions[role].Contains(action);
-        }
-
-        public List<string> GetAllPermissionsForRole(string role)
-        {
-            if (string.IsNullOrWhiteSpace(role))
-                throw new ArgumentException("Роль не может быть пустой", nameof(role));
-
-            // Возвращаем список прав для роли или пустой список
-            return rolePermissions.ContainsKey(role)
-                ? new List<string>(rolePermissions[role])
-                : new List<string>();
-        }
-
-        // Дополнительные методы
-
-        public void AddPermissionToRole(string role, string permission)
-        {
-            if (string.IsNullOrWhiteSpace(role))
-                throw new ArgumentException("Роль не может быть пустой", nameof(role));
-
-            if (string.IsNullOrWhiteSpace(permission))
-                throw new ArgumentException("Право не может быть пустым", nameof(permission));
-
-            if (!rolePermissions.ContainsKey(role))
-            {
-                rolePermissions[role] = new List<string>();
-            }
-
-            if (!rolePermissions[role].Contains(permission))
-            {
-                rolePermissions[role].Add(permission);
-            }
-        }
-
-        public void RemovePermissionFromRole(string role, string permission)
-        {
-            if (string.IsNullOrWhiteSpace(role) || string.IsNullOrWhiteSpace(permission))
-                return;
-
             if (rolePermissions.ContainsKey(role))
             {
-                rolePermissions[role].Remove(permission);
+                return rolePermissions[role].Contains(action);
             }
+            return false; // Если роль не найдена, запретить доступ
         }
 
-        public List<string> GetAllRoles()
+        // Получить все действия, разрешённые для роли
+        public List<string> GetAllPermissionsForRole(UserRole role)
         {
-            return rolePermissions.Keys.ToList();
-        }
-
-        public void AddNewRole(string role, List<string> permissions)
-        {
-            if (string.IsNullOrWhiteSpace(role))
-                throw new ArgumentException("Роль не может быть пустой", nameof(role));
-
-            if (permissions == null)
-                throw new ArgumentNullException(nameof(permissions));
-
-            if (!rolePermissions.ContainsKey(role))
+            if (rolePermissions.ContainsKey(role))
             {
-                rolePermissions[role] = new List<string>(permissions);
+                return rolePermissions[role];
             }
-        }
-
-        public Dictionary<string, List<string>> GetAllRolePermissions()
-        {
-            // Возвращаем копию словаря
-            var copy = new Dictionary<string, List<string>>();
-            foreach (var kvp in rolePermissions)
-            {
-                copy[kvp.Key] = new List<string>(kvp.Value);
-            }
-            return copy;
-        }
-
-        public override string ToString()
-        {
-            return $"Permission Manager: {rolePermissions.Count} ролей";
+            return new List<string>();
         }
     }
 }

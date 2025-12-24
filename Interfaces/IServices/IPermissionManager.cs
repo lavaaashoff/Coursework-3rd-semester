@@ -1,5 +1,7 @@
 ﻿using CouseWork3Semester.Interfaces;
+using CouseWork3Semester.Enums;
 using System;
+
 using System.Collections.Generic;
 using System.Text;
 
@@ -8,7 +10,7 @@ namespace CouseWork3Semester.Interfaces
     public interface IPermissionManager
     {
         // Методы из UML
-        bool CanEmployeeDoAction(IEmployee employee, string action);
-        List<string> GetAllPermissionsForRole(string role);
+        public bool CanRolePerformAction(UserRole role, string action);
+        public List<string> GetAllPermissionsForRole(UserRole role);
     }
 }
