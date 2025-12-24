@@ -1,12 +1,13 @@
-﻿using CouseWork3Semester.Interfaces;
+﻿using CourseWork3Semester.Views;
+using CouseWork3Semester.Enums;
+using CouseWork3Semester.Interfaces;
 using CouseWork3Semester.Models;
 using CouseWork3Semester.Presenters;
+using CouseWork3Semester.Registries;
 using CouseWork3Semester.Services;
 using CouseWork3Semester.Views;
-using CourseWork3Semester.Views;
-using CouseWork3Semester.Enums;
-using System.Windows;
 using System.Collections.Generic;
+using System.Windows;
 
 namespace CouseWork3Semester
 {
@@ -15,36 +16,39 @@ namespace CouseWork3Semester
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
-
-            // Критично: управляем режимом завершения
             Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
 
-            // Список сотрудников (пример данных) ПОТОМ НАДО УДАЛИТЬ!!!!!!!!!!!!!!!!!!!!!!!!!!
             var employees = new List<IEmployee>
             {
-                new Employee("lvshf", "123", "Vital Suhomlinvo", UserRole.Administrator)
+                new Employee("admin", "admin", "Vital Suhomlinvo", UserRole.Administrator),
+                new Employee("com", "com", "Vital Suhomlinvo", UserRole.Commandant),
+                new Employee("staff", "staff", "Vital Suhomlinvo", UserRole.AdminStaff)
             };
             var authManager = new AuthManager(employees);
 
-            // Открытие LoginView с передачей AuthManager и обработчиком после логина
             var loginView = new LoginView();
+            Application.Current.MainWindow = loginView;
+
             var loginPresenter = new LoginPresenter(authManager, loginView, currentEmployee =>
             {
-                // 1) Создаём Dashboard
+                // Создаём зависимости для Dashboard
                 var permissionManager = new PermissionManager();
+                var dormitoryRegistry = new DormitoryRegistry(); // ваш реестр общежитий
+
                 var dashboardView = new DashboardView();
-                var dashboardPresenter = new DashboardPresenter(currentEmployee, permissionManager);
+                var dashboardPresenter = new DashboardPresenter(
+                    currentEmployee,
+                    permissionManager,
+                    dormitoryRegistry
+                );
+
                 dashboardPresenter.InitializeDashboard(dashboardView);
 
-                // 2) Делаем Dashboard главным окном до закрытия Login
+                // Назначаем Dashboard главным окном и показываем его
                 Application.Current.MainWindow = dashboardView;
-
-                // 3) Показываем Dashboard
                 dashboardView.Show();
             });
 
-            // Login будет главным окном, пока не назначим Dashboard
-            Application.Current.MainWindow = loginView;
             loginView.Show();
         }
     }

@@ -1,0 +1,71 @@
+﻿<Window x:Class="CouseWork3Semester.Views.DormitoriesView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Dormitories" Height="600" Width="900">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Заголовок -->
+        <TextBlock Text="Dormitories Directory" FontSize="22" FontWeight="Bold" Margin="0,0,0,10"/>
+
+        <!-- Список общежитий -->
+        <DataGrid x:Name="DormitoriesGrid"
+                  Grid.Row="1"
+                  AutoGenerateColumns="False"
+                  IsReadOnly="True"
+                  SelectionMode="Single"
+                  Margin="0,10,0,10">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Number" Binding="{Binding Number}" Width="100"/>
+                <DataGridTextColumn Header="Address" Binding="{Binding Address}" Width="200"/>
+                <DataGridTextColumn Header="Photo" Binding="{Binding PhotoPath}" Width="200"/>
+                <DataGridTextColumn Header="Rooms" Binding="{Binding RoomsCount}" Width="80"/>
+                <DataGridTextColumn Header="Total Places" Binding="{Binding TotalPlaces}" Width="100"/>
+                <DataGridTextColumn Header="Occupied" Binding="{Binding OccupiedPlaces}" Width="100"/>
+                <DataGridTextColumn Header="Available" Binding="{Binding AvailablePlaces}" Width="100"/>
+                <DataGridTextColumn Header="Occupancy %" Binding="{Binding OccupancyPercent}" Width="100"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- Панель действий -->
+        <StackPanel Grid.Row="2" Orientation="Vertical" Margin="0,10,0,0">
+            <!-- Блок добавления общежития (только для ролей с ManageDormitories) -->
+            <GroupBox Header="Add Dormitory" Margin="0,0,0,10" x:Name="AddDormitoryGroup">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="10">
+                    <StackPanel Width="250" Margin="0,0,10,0">
+                        <TextBlock Text="Number"/>
+                        <TextBox x:Name="NewDormNumberTextBox"/>
+                    </StackPanel>
+                    <StackPanel Width="300" Margin="0,0,10,0">
+                        <TextBlock Text="Address"/>
+                        <TextBox x:Name="NewDormAddressTextBox"/>
+                    </StackPanel>
+                    <StackPanel Width="300" Margin="0,0,10,0">
+                        <TextBlock Text="Photo Path (URL)"/>
+                        <TextBox x:Name="NewDormPhotoTextBox"/>
+                    </StackPanel>
+                    <Button x:Name="AddDormitoryButton" Content="Add" Width="100" Margin="10,20,0,0"/>
+                </StackPanel>
+            </GroupBox>
+
+            <!-- Блок редактирования фото (только для ролей с EditDormitories) -->
+            <GroupBox Header="Edit Dormitory Photo" Margin="0,0,0,10" x:Name="EditPhotoGroup">
+                <StackPanel Orientation="Horizontal" Margin="10">
+                    <TextBlock Text="New Photo Path" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <TextBox x:Name="EditPhotoPathTextBox" Width="400"/>
+                    <Button x:Name="UpdatePhotoButton" Content="Update Photo" Width="150" Margin="10,0,0,0"/>
+                </StackPanel>
+            </GroupBox>
+
+            <!-- Блок удаления (только для ролей с ManageDormitories) -->
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                <Button x:Name="RemoveDormitoryButton" Content="Remove Selected" Width="150" Margin="0,0,10,0"/>
+                <Button x:Name="RefreshButton" Content="Refresh" Width="120"/>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</Window>
