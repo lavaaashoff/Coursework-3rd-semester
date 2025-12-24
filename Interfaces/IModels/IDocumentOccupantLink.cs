@@ -13,7 +13,7 @@ namespace CouseWork3Semester.Interfaces
         DateTime LinkCreatedDate { get; }
 
         // Методы из UML (адаптированные)
-        List<Guid> GetOccupantsByDocument(Guid documentId);
-        List<Guid> GetDocumentsByOccupant(Guid occupantId);
+        //List<Guid> GetOccupantsByDocument(Guid documentId);
+        //List<Guid> GetDocumentsByOccupant(Guid occupantId);
     }
 }

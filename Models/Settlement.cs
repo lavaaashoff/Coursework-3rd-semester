@@ -3,7 +3,6 @@ using CouseWork3Semester.Enums;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using CouseWork3Semester.Interfaces.IModels;
 
 namespace CouseWork3Semester.Models
 {

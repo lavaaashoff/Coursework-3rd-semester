@@ -1,5 +1,5 @@
 ﻿using CouseWork3Semester.Enums;
-using CouseWork3Semester.Interfaces.IModels;
+using CouseWork3Semester.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Text;

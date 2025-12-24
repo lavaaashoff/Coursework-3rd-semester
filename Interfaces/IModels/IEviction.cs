@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace CouseWork3Semester.Interfaces.IModels
+namespace CouseWork3Semester.Interfaces
 {
     public interface IEviction
     {

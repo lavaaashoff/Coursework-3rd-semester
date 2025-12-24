@@ -1,6 +1,4 @@
-﻿
-
-using CouseWork3Semester.Interfaces.IModels;
+﻿using CouseWork3Semester.Interfaces;
 
 namespace CouseWork3Semester.Interfaces
 {
