@@ -58,7 +58,7 @@ namespace CouseWork3Semester.Services
             // Проверка прав (только через интерфейсы)
             if (CurrentEmployee != null && PermissionManager != null)
             {
-                if (!PermissionManager.CanEmployeeDoAction(CurrentEmployee, "Заселение"))
+                if (!PermissionManager.CanRolePerformAction(CurrentEmployee.Role, "ManageOccupants"))
                     throw new InvalidOperationException("Недостаточно прав для выполнения заселения.");
             }
 
@@ -96,7 +96,7 @@ namespace CouseWork3Semester.Services
             // Проверка прав (только интерфейсы)
             if (CurrentEmployee != null && PermissionManager != null)
             {
-                if (!PermissionManager.CanEmployeeDoAction(CurrentEmployee, "Выселение"))
+                if (!PermissionManager.CanRolePerformAction(CurrentEmployee.Role, "ManageOccupants"))
                     throw new InvalidOperationException("Недостаточно прав для выполнения выселения.");
             }
 
