@@ -1,14 +1,27 @@
-﻿using System.Configuration;
-using System.Data;
+﻿using CouseWork3Semester.Interfaces;
+using CouseWork3Semester.Models;
+using CouseWork3Semester.Presenters;
+using CouseWork3Semester.Services;
+using CouseWork3Semester.Views;
+using System.Collections.Generic;
 using System.Windows;
 
 namespace CouseWork3Semester
 {
-    /// <summary>
-    /// Interaction logic for App.xaml
-    /// </summary>
     public partial class App : Application
     {
-    }
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            base.OnStartup(e);
 
+            // Список сотрудников (пример данных) ПОТОМ НАДО УДАЛИТЬ!!!!!!!!!!!!!!!!!!!!!!!!!!
+            var employees = new List<IEmployee> { new Employee("lvshf", "123", "Vital Suhomlinvo", "Администратор")};
+            var authManager = new AuthManager(employees);
+
+            var loginView = new LoginView();
+            var loginPresenter = new LoginPresenter(authManager, loginView);
+
+            loginView.Show();
+        }
+    }
 }
