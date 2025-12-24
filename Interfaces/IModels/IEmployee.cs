@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using CouseWork3Semester.Enums;
 
 namespace CouseWork3Semester.Interfaces
 {
@@ -10,10 +11,6 @@ namespace CouseWork3Semester.Interfaces
         string Login { get; }
         string Password { get; }
         string FullName { get; }
-        string Role { get; }
-
-        // Методы из UML
-        string GetData();
-        string GetRole();
+        UserRole Role { get; }
     }
 }

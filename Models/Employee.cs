@@ -1,4 +1,5 @@
 ﻿using CouseWork3Semester.Interfaces;
+using CouseWork3Semester.Enums;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -11,12 +12,12 @@ namespace CouseWork3Semester.Models
         public string Login { get; private set; }
         public string Password { get; private set; }
         public string FullName { get; private set; }
-        public string Role { get; private set; }
+        public UserRole Role { get; private set; }
 
         // Конструктор
-        public Employee(string login, string password, string fullName, string role)
+        public Employee(string login, string password, string fullName, UserRole role)
         {
-            Validate(login, password, fullName, role);
+            Validate(login, password, fullName);
 
             Login = login;
             Password = password;
@@ -25,15 +26,6 @@ namespace CouseWork3Semester.Models
         }
 
         // Реализация методов интерфейса
-        public string GetData()
-        {
-            return $"Сотрудник: {FullName}, Логин: {Login}, Роль: {Role}";
-        }
-
-        public string GetRole()
-        {
-            return Role;
-        }
 
         public void ChangePassword(string newPassword)
         {
@@ -44,7 +36,7 @@ namespace CouseWork3Semester.Models
         }
 
         // Вспомогательные методы
-        private void Validate(string login, string password, string fullName, string role)
+        private void Validate(string login, string password, string fullName)
         {
             if (string.IsNullOrWhiteSpace(login))
                 throw new ArgumentException("Логин не может быть пустым", nameof(login));
@@ -54,9 +46,6 @@ namespace CouseWork3Semester.Models
 
             if (string.IsNullOrWhiteSpace(fullName))
                 throw new ArgumentException("ФИО не может быть пустым", nameof(fullName));
-
-            if (string.IsNullOrWhiteSpace(role))
-                throw new ArgumentException("Роль не может быть пустой", nameof(role));
         }
     }
 }
