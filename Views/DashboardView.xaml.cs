@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace CourseWork3Semester.Views
+namespace CouseWork3Semester.Views
 {
     public partial class DashboardView : Window
     {

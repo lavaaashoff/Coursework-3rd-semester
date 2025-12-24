@@ -1,18 +1,26 @@
-﻿<Window x:Class="CourseWork3Semester.Views.DashboardView"
+﻿<Window x:Class="CouseWork3Semester.Views.DashboardView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Dashboard" Height="400" Width="600">
-    <Grid>
-        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-            <TextBlock Text="Dashboard" FontSize="24" FontWeight="Bold" Margin="0,0,0,20" HorizontalAlignment="Center" />
+        Title="Dashboard" Height="520" Width="600">
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="*"/>
+		</Grid.RowDefinitions>
 
-            <Button x:Name="ManageDormitoriesButton" Content="Manage Dormitories" Width="200" Height="40" Margin="0,10" />
-            <Button x:Name="ManageRoomsButton" Content="Manage Rooms" Width="200" Height="40" Margin="0,10" />
-            <Button x:Name="ManageOccupantsButton" Content="Manage Occupants" Width="200" Height="40" Margin="0,10" />
-            <Button x:Name="ManageDocumentsButton" Content="Manage Documents" Width="200" Height="40" Margin="0,10" />
-            <Button x:Name="ManageEvictionsButton" Content="Manage Evictions" Width="200" Height="40" Margin="0,10" />
-            <Button x:Name="ManageInventoryButton" Content="Manage Inventory" Width="200" Height="40" Margin="0,10" />
-            <Button x:Name="ReportsButton" Content="Reports" Width="200" Height="40" Margin="0,10" />
-        </StackPanel>
-    </Grid>
+
+		<TextBlock Text="Dashboard" FontSize="22" FontWeight="Bold" DockPanel.Dock="Left"/>
+		
+		<!-- Основные кнопки -->
+		<StackPanel Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center">
+			<Button x:Name="ManageDormitoriesButton" Content="Manage Dormitories" Width="200" Height="40" Margin="0,10"/>
+			<Button x:Name="ManageRoomsButton" Content="Manage Rooms" Width="200" Height="40" Margin="0,10"/>
+			<Button x:Name="ManageOccupantsButton" Content="Manage Occupants" Width="200" Height="40" Margin="0,10"/>
+			<Button x:Name="ManageDocumentsButton" Content="Manage Documents" Width="200" Height="40" Margin="0,10"/>
+			<Button x:Name="ManageEvictionsButton" Content="Manage Evictions" Width="200" Height="40" Margin="0,10"/>
+			<Button x:Name="ManageInventoryButton" Content="Manage Inventory" Width="200" Height="40" Margin="0,10"/>
+			<Button x:Name="ReportsButton" Content="Reports" Width="200" Height="40" Margin="0,10"/>
+			<Button x:Name="LogoutButton" Content="Logout" Width="100" DockPanel.Dock="Right"/>
+		</StackPanel>
+	</Grid>
 </Window>
