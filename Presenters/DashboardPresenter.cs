@@ -1,7 +1,7 @@
-﻿using CouseWork3Semester.Views;
-using CouseWork3Semester.Interfaces;
-using System;
+﻿using System;
 using System.Windows;
+using CouseWork3Semester.Interfaces;
+using CouseWork3Semester.Views;
 
 namespace CouseWork3Semester.Presenters
 {
@@ -10,6 +10,8 @@ namespace CouseWork3Semester.Presenters
         private readonly IEmployee _currentEmployee;
         private readonly IPermissionManager _permissionManager;
         private readonly IDormitoryRegistry _dormitoryRegistry;
+        private readonly IOccupantRegistry _occupantRegistry;
+        private readonly IPassportValidator _passportValidator;
         private readonly IAuthManager _authManager;
 
         private DashboardView _view;
@@ -18,11 +20,15 @@ namespace CouseWork3Semester.Presenters
             IEmployee currentEmployee,
             IPermissionManager permissionManager,
             IDormitoryRegistry dormitoryRegistry,
+            IOccupantRegistry occupantRegistry,
+            IPassportValidator passportValidator,
             IAuthManager authManager)
         {
             _currentEmployee = currentEmployee ?? throw new ArgumentNullException(nameof(currentEmployee));
             _permissionManager = permissionManager ?? throw new ArgumentNullException(nameof(permissionManager));
             _dormitoryRegistry = dormitoryRegistry ?? throw new ArgumentNullException(nameof(dormitoryRegistry));
+            _occupantRegistry = occupantRegistry ?? throw new ArgumentNullException(nameof(occupantRegistry));
+            _passportValidator = passportValidator ?? throw new ArgumentNullException(nameof(passportValidator));
             _authManager = authManager ?? throw new ArgumentNullException(nameof(authManager));
         }
 
@@ -59,7 +65,7 @@ namespace CouseWork3Semester.Presenters
                 _permissionManager.CanRolePerformAction(_currentEmployee.Role, "GenerateReports")
                     ? Visibility.Visible : Visibility.Collapsed;
 
-            // Открытие окна "Справочник общежитий"
+            // Навигация: Справочник общежитий
             _view.ManageDormitoriesButton.Click += (s, e) =>
             {
                 var dormitoriesView = new DormitoriesView();
@@ -72,7 +78,7 @@ namespace CouseWork3Semester.Presenters
                 dormitoriesView.Show();
             };
 
-            // Открытие окна "Учёт комнат"
+            // Навигация: Учёт комнат
             _view.ManageRoomsButton.Click += (s, e) =>
             {
                 var roomsView = new RoomsView();
@@ -85,6 +91,20 @@ namespace CouseWork3Semester.Presenters
                 roomsView.Show();
             };
 
+            // Навигация: Регистрация жильцов и детей
+            _view.ManageOccupantsButton.Click += (s, e) =>
+            {
+                var residentsView = new ResidentsView();
+                var residentsPresenter = new ResidentsPresenter(
+                    residentsView,
+                    _occupantRegistry,
+                    _permissionManager,
+                    _passportValidator,
+                    _currentEmployee
+                );
+                residentsView.Show();
+            };
+
             // Logout
             _view.LogoutButton.Click += (s, e) =>
             {
@@ -92,20 +112,22 @@ namespace CouseWork3Semester.Presenters
                 {
                     _authManager.Logout();
 
-                    // Переход обратно на Login
                     var loginView = new LoginView();
-
-                    // Важно: назначаем новое главное окно до закрытия Dashboard
+                    // Назначаем новое главное окно до закрытия текущего, чтобы приложение не завершилось
                     Application.Current.MainWindow = loginView;
 
                     var loginPresenter = new LoginPresenter(_authManager, loginView, employee =>
                     {
                         // После повторного логина — обратно в Dashboard
-                        var permissionManager = _permissionManager; // можно переиспользовать
-                        var dormitoryRegistry = _dormitoryRegistry; // переиспользуем общий реестр
-
                         var dashboardView = new DashboardView();
-                        var dashboardPresenter = new DashboardPresenter(employee, permissionManager, dormitoryRegistry, _authManager);
+                        var dashboardPresenter = new DashboardPresenter(
+                            employee,
+                            _permissionManager,
+                            _dormitoryRegistry,
+                            _occupantRegistry,
+                            _passportValidator,
+                            _authManager
+                        );
                         dashboardPresenter.InitializeDashboard(dashboardView);
 
                         Application.Current.MainWindow = dashboardView;
@@ -113,8 +135,6 @@ namespace CouseWork3Semester.Presenters
                     });
 
                     loginView.Show();
-
-                    // Закрываем текущий Dashboard
                     _view.Close();
                 }
                 catch (Exception ex)

@@ -1,12 +1,12 @@
-﻿using CouseWork3Semester.Interfaces;
+﻿using System.Collections.Generic;
+using System.Windows;
+using CouseWork3Semester.Enums;
+using CouseWork3Semester.Interfaces;
 using CouseWork3Semester.Models;
 using CouseWork3Semester.Presenters;
+using CouseWork3Semester.Registries;
 using CouseWork3Semester.Services;
 using CouseWork3Semester.Views;
-using CouseWork3Semester.Enums;
-using CouseWork3Semester.Registries;
-using System.Collections.Generic;
-using System.Windows;
 
 namespace CouseWork3Semester
 {
@@ -15,8 +15,6 @@ namespace CouseWork3Semester
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
-
-            // Управляем режимом завершения, чтобы приложение не закрывалось при закрытии Login
             Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
 
             // Пример данных (удалить позже)
@@ -28,8 +26,11 @@ namespace CouseWork3Semester
             };
             var authManager = new AuthManager(employees);
 
+            // Глобальные зависимости, которые будем передавать в Dashboard
             var permissionManager = new PermissionManager();
             var dormitoryRegistry = new DormitoryRegistry();
+            var occupantRegistry = new OccupantRegistry();
+            var passportValidator = new PassportValidator();
 
             // Открытие Login
             var loginView = new LoginView();
@@ -37,12 +38,13 @@ namespace CouseWork3Semester
 
             var loginPresenter = new LoginPresenter(authManager, loginView, currentEmployee =>
             {
-                // Переход в Dashboard после успешного логина
                 var dashboardView = new DashboardView();
                 var dashboardPresenter = new DashboardPresenter(
                     currentEmployee,
                     permissionManager,
                     dormitoryRegistry,
+                    occupantRegistry,
+                    passportValidator,
                     authManager
                 );
 
