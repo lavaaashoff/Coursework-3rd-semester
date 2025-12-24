@@ -94,7 +94,7 @@ namespace CouseWork3Semester.Models
         public string Comment
         {
             get => _comment;
-            private set => _comment = value?.Trim() ?? string.Empty;
+            set;
         }
 
         // Конструкторы

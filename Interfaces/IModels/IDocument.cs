@@ -13,7 +13,7 @@ namespace CouseWork3Semester.Interfaces
         string Title { get; }
         DateTime IssueDate { get; }
         string IssuedBy { get; }
-        string Comment { get; }
+        string Comment { get; set; }
 
         // Методы
         void ChangeComment(string text);

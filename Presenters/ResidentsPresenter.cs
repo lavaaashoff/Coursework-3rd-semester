@@ -11,23 +11,13 @@ namespace CouseWork3Semester.Presenters
     public class ResidentsPresenter
     {
         private readonly ResidentsView _view;
-        private readonly IOccupantRegistry _registry;
-        private readonly IPermissionManager _permissionManager;
-        private readonly IPassportValidator _passportValidator;
-        private readonly IEmployee _currentEmployee;
+        private readonly IAccountingSystem _sys;
+        private IEmployee _employee => _sys.GetCurrentEmployee();
 
-        public ResidentsPresenter(
-            ResidentsView view,
-            IOccupantRegistry registry,
-            IPermissionManager permissionManager,
-            IPassportValidator passportValidator,
-            IEmployee currentEmployee)
+        public ResidentsPresenter(ResidentsView view, IAccountingSystem accountingSystem)
         {
             _view = view ?? throw new ArgumentNullException(nameof(view));
-            _registry = registry ?? throw new ArgumentNullException(nameof(registry));
-            _permissionManager = permissionManager ?? throw new ArgumentNullException(nameof(permissionManager));
-            _passportValidator = passportValidator ?? throw new ArgumentNullException(nameof(passportValidator));
-            _currentEmployee = currentEmployee ?? throw new ArgumentNullException(nameof(currentEmployee));
+            _sys = accountingSystem ?? throw new ArgumentNullException(nameof(accountingSystem));
 
             WireEvents();
             ApplyPermissions();
@@ -48,8 +38,7 @@ namespace CouseWork3Semester.Presenters
 
         private void ApplyPermissions()
         {
-            var canManage = _permissionManager.CanRolePerformAction(_currentEmployee.Role, "ManageOccupants");
-
+            var canManage = _sys.PermissionManager.CanRolePerformAction(_employee.Role, "ManageOccupants");
             _view.AddResidentGroup.Visibility = canManage ? Visibility.Visible : Visibility.Collapsed;
             _view.EditResidentGroup.Visibility = canManage ? Visibility.Visible : Visibility.Collapsed;
             _view.AddChildGroup.Visibility = canManage ? Visibility.Visible : Visibility.Collapsed;
@@ -63,7 +52,7 @@ namespace CouseWork3Semester.Presenters
 
         private void LoadResidents()
         {
-            var residents = _registry.GetAllResidents() ?? new List<IResident>();
+            var residents = _sys.OccupantRegistry.GetAllResidents() ?? new List<IResident>();
             var items = residents.Select(r => new ResidentViewItem
             {
                 Id = r.Id,
@@ -87,8 +76,8 @@ namespace CouseWork3Semester.Presenters
 
         private void LoadChildren()
         {
-            var children = _registry.GetAllChildren() ?? new List<IChild>();
-            var residents = _registry.GetAllResidents() ?? new List<IResident>();
+            var children = _sys.OccupantRegistry.GetAllChildren() ?? new List<IChild>();
+            var residents = _sys.OccupantRegistry.GetAllResidents() ?? new List<IResident>();
 
             var items = children.Select(c =>
             {
@@ -111,7 +100,7 @@ namespace CouseWork3Semester.Presenters
         {
             try
             {
-                if (!_permissionManager.CanRolePerformAction(_currentEmployee.Role, "ManageOccupants"))
+                if (!_sys.PermissionManager.CanRolePerformAction(_employee.Role, "ManageOccupants"))
                 {
                     MessageBox.Show("You do not have permission to add residents.", "Access denied",
                         MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -155,12 +144,13 @@ namespace CouseWork3Semester.Presenters
 
                 var passport = new CouseWork3Semester.Models.Passport(series, number, issueDate, issuedBy);
 
-                // Валидация паспорта интерфейсом валидатора
-                var format = _passportValidator.CheckFormat(passport);
+                var format = _sys.PassportValidator.CheckFormat(passport);
                 if (!format.IsValid)
                 {
-                    MessageBox.Show($"Passport invalid: {string.Join("; ", format.Errors)}", "Validation error",
-                        MessageBoxButton.OK, MessageBoxImage.Error);
+                    var message = (format.Errors != null && format.Errors.Any())
+                        ? string.Join("; ", format.Errors)
+                        : "Passport format is invalid";
+                    MessageBox.Show(message, "Validation error", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
@@ -175,7 +165,7 @@ namespace CouseWork3Semester.Presenters
                 var resident = new CouseWork3Semester.Models.Resident(
                     regNumber, fullName, gender, birthDate, passport, checkIn);
 
-                _registry.AddResident(resident);
+                _sys.OccupantRegistry.AddResident(resident);
                 LoadResidents();
                 LoadChildren();
             }
@@ -190,7 +180,7 @@ namespace CouseWork3Semester.Presenters
         {
             try
             {
-                if (!_permissionManager.CanRolePerformAction(_currentEmployee.Role, "ManageOccupants"))
+                if (!_sys.PermissionManager.CanRolePerformAction(_employee.Role, "ManageOccupants"))
                 {
                     MessageBox.Show("You do not have permission to edit residents.", "Access denied",
                         MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -204,8 +194,7 @@ namespace CouseWork3Semester.Presenters
                     return;
                 }
 
-                // Находим объект IResident по Id
-                var resident = _registry.GetAllResidents().FirstOrDefault(r => r.Id == item.Id);
+                var resident = _sys.OccupantRegistry.GetAllResidents().FirstOrDefault(r => r.Id == item.Id);
                 if (resident == null)
                 {
                     MessageBox.Show("Resident not found.", "Error",
@@ -213,7 +202,6 @@ namespace CouseWork3Semester.Presenters
                     return;
                 }
 
-                // Обновляем только изменяемые поля согласно модели
                 resident.WorkStatus = _view.WorkStatusCheckBox.IsChecked == true;
                 resident.Workplace = _view.WorkplaceTextBox.Text?.Trim();
                 resident.StudyStatus = _view.StudyStatusCheckBox.IsChecked == true;
@@ -232,7 +220,7 @@ namespace CouseWork3Semester.Presenters
         {
             try
             {
-                if (!_permissionManager.CanRolePerformAction(_currentEmployee.Role, "ManageOccupants"))
+                if (!_sys.PermissionManager.CanRolePerformAction(_employee.Role, "ManageOccupants"))
                 {
                     MessageBox.Show("You do not have permission to remove residents.", "Access denied",
                         MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -246,9 +234,7 @@ namespace CouseWork3Semester.Presenters
                     return;
                 }
 
-                // Внимание: удаление жильца оставит детей "без родителя".
-                // В текущей модели связей пересборка детей не реализована.
-                var ok = _registry.RemoveOccupant(item.Id);
+                var ok = _sys.OccupantRegistry.RemoveOccupant(item.Id);
                 if (!ok)
                 {
                     MessageBox.Show("Unable to remove resident.", "Error",
@@ -270,7 +256,7 @@ namespace CouseWork3Semester.Presenters
         {
             try
             {
-                if (!_permissionManager.CanRolePerformAction(_currentEmployee.Role, "ManageOccupants"))
+                if (!_sys.PermissionManager.CanRolePerformAction(_employee.Role, "ManageOccupants"))
                 {
                     MessageBox.Show("You do not have permission to add children.", "Access denied",
                         MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -301,7 +287,7 @@ namespace CouseWork3Semester.Presenters
                 }
 
                 var child = new CouseWork3Semester.Models.Child(childName, childBirth, parentItem.Id);
-                _registry.AddChild(child);
+                _sys.OccupantRegistry.AddChild(child);
 
                 LoadChildren();
                 ClearAddChildFields();
@@ -317,7 +303,7 @@ namespace CouseWork3Semester.Presenters
         {
             if (_view.ResidentsGrid.SelectedItem is ResidentViewItem item)
             {
-                var resident = _registry.GetAllResidents().FirstOrDefault(r => r.Id == item.Id);
+                var resident = _sys.OccupantRegistry.GetAllResidents().FirstOrDefault(r => r.Id == item.Id);
                 if (resident != null)
                 {
                     _view.WorkStatusCheckBox.IsChecked = resident.WorkStatus;

@@ -1,7 +1,8 @@
-﻿using System;
+﻿using CouseWork3Semester.Interfaces;
+using CouseWork3Semester.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using CouseWork3Semester.Interfaces;
 
 namespace CouseWork3Semester.Services
 {
@@ -19,6 +20,7 @@ namespace CouseWork3Semester.Services
         public IDocumentOccupantService DocumentOccupantService { get; }
         public IPassportValidator PassportValidator { get; }
         public IDocumentValidator DocumentValidator { get; }
+        public IDocumentRegistry DocumentRegistry { get; set; }
 
         public AccountingSystem(
             IDormitoryRegistry dormitoryRegistry,
@@ -32,7 +34,8 @@ namespace CouseWork3Semester.Services
             IDocumentOccupantService documentOccupantService,
             IPassportValidator passportValidator,
             IDocumentValidator documentValidator,
-            IEmployee currentEmployee = null)
+            IEmployee currentEmployee = null,
+            IDocumentRegistry documentRegistry = null)
         {
             DormitoryRegistry = dormitoryRegistry ?? throw new ArgumentNullException(nameof(dormitoryRegistry));
             OccupantRegistry = occupantRegistry ?? throw new ArgumentNullException(nameof(occupantRegistry));
@@ -46,6 +49,7 @@ namespace CouseWork3Semester.Services
             PassportValidator = passportValidator ?? throw new ArgumentNullException(nameof(passportValidator));
             DocumentValidator = documentValidator ?? throw new ArgumentNullException(nameof(documentValidator));
             CurrentEmployee = currentEmployee;
+            DocumentRegistry = documentRegistry; // может быть задан позже
         }
 
         // Методы из UML

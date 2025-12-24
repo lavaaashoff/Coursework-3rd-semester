@@ -7,7 +7,6 @@ namespace CouseWork3Semester.Interfaces
 {
     public interface IAccountingSystem
     {
-        // Свойства из UML
         IDormitoryRegistry DormitoryRegistry { get; }
         IOccupantRegistry OccupantRegistry { get; }
         ISettlementEvictionService SettlementEvictionService { get; }
@@ -21,7 +20,9 @@ namespace CouseWork3Semester.Interfaces
         IPassportValidator PassportValidator { get; }
         IDocumentValidator DocumentValidator { get; }
 
-        // Методы из UML
+        // ДОБАВЛЕНО:
+        IDocumentRegistry DocumentRegistry { get; }
+
         void RegisterOccupant(IRoomOccupant occupant, IRoom room, IDocument document);
         void EvictOccupant(IRoomOccupant occupant, string reason);
         string GetReport(string reportType, Dictionary<string, object> parameters);

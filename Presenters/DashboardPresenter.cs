@@ -7,102 +7,73 @@ namespace CouseWork3Semester.Presenters
 {
     public class DashboardPresenter
     {
-        private readonly IEmployee _currentEmployee;
-        private readonly IPermissionManager _permissionManager;
-        private readonly IDormitoryRegistry _dormitoryRegistry;
-        private readonly IOccupantRegistry _occupantRegistry;
-        private readonly IPassportValidator _passportValidator;
-        private readonly IAuthManager _authManager;
-
+        private readonly IAccountingSystem _sys;
         private DashboardView _view;
 
-        public DashboardPresenter(
-            IEmployee currentEmployee,
-            IPermissionManager permissionManager,
-            IDormitoryRegistry dormitoryRegistry,
-            IOccupantRegistry occupantRegistry,
-            IPassportValidator passportValidator,
-            IAuthManager authManager)
+        public DashboardPresenter(IAccountingSystem accountingSystem)
         {
-            _currentEmployee = currentEmployee ?? throw new ArgumentNullException(nameof(currentEmployee));
-            _permissionManager = permissionManager ?? throw new ArgumentNullException(nameof(permissionManager));
-            _dormitoryRegistry = dormitoryRegistry ?? throw new ArgumentNullException(nameof(dormitoryRegistry));
-            _occupantRegistry = occupantRegistry ?? throw new ArgumentNullException(nameof(occupantRegistry));
-            _passportValidator = passportValidator ?? throw new ArgumentNullException(nameof(passportValidator));
-            _authManager = authManager ?? throw new ArgumentNullException(nameof(authManager));
+            _sys = accountingSystem ?? throw new ArgumentNullException(nameof(accountingSystem));
         }
 
         public void InitializeDashboard(DashboardView view)
         {
             _view = view ?? throw new ArgumentNullException(nameof(view));
 
-            // Видимость кнопок по ролям
+            var employee = _sys.GetCurrentEmployee();
+            var pm = _sys.PermissionManager;
+
+            // Видимость по ролям
             _view.ManageDormitoriesButton.Visibility =
-                _permissionManager.CanRolePerformAction(_currentEmployee.Role, "ManageDormitories")
-                    ? Visibility.Visible : Visibility.Collapsed;
+                pm.CanRolePerformAction(employee.Role, "ManageDormitories") ? Visibility.Visible : Visibility.Collapsed;
 
             _view.ManageRoomsButton.Visibility =
-                _permissionManager.CanRolePerformAction(_currentEmployee.Role, "ManageRooms")
-                    ? Visibility.Visible : Visibility.Collapsed;
+                pm.CanRolePerformAction(employee.Role, "ManageRooms") ? Visibility.Visible : Visibility.Collapsed;
 
             _view.ManageOccupantsButton.Visibility =
-                _permissionManager.CanRolePerformAction(_currentEmployee.Role, "ManageOccupants")
-                    ? Visibility.Visible : Visibility.Collapsed;
+                pm.CanRolePerformAction(employee.Role, "ManageOccupants") ? Visibility.Visible : Visibility.Collapsed;
 
             _view.ManageDocumentsButton.Visibility =
-                _permissionManager.CanRolePerformAction(_currentEmployee.Role, "ManageDocuments")
-                    ? Visibility.Visible : Visibility.Collapsed;
+                pm.CanRolePerformAction(employee.Role, "ManageDocuments") ? Visibility.Visible : Visibility.Collapsed;
 
             _view.ManageEvictionsButton.Visibility =
-                _permissionManager.CanRolePerformAction(_currentEmployee.Role, "ManageEvictions")
-                    ? Visibility.Visible : Visibility.Collapsed;
+                pm.CanRolePerformAction(employee.Role, "ManageEvictions") ? Visibility.Visible : Visibility.Collapsed;
 
             _view.ManageInventoryButton.Visibility =
-                _permissionManager.CanRolePerformAction(_currentEmployee.Role, "ManageInventory")
-                    ? Visibility.Visible : Visibility.Collapsed;
+                pm.CanRolePerformAction(employee.Role, "ManageInventory") ? Visibility.Visible : Visibility.Collapsed;
 
             _view.ReportsButton.Visibility =
-                _permissionManager.CanRolePerformAction(_currentEmployee.Role, "GenerateReports")
-                    ? Visibility.Visible : Visibility.Collapsed;
+                pm.CanRolePerformAction(employee.Role, "GenerateReports") ? Visibility.Visible : Visibility.Collapsed;
 
             // Навигация: Справочник общежитий
             _view.ManageDormitoriesButton.Click += (s, e) =>
             {
-                var dormitoriesView = new DormitoriesView();
-                var presenter = new DormitoriesPresenter(
-                    dormitoriesView,
-                    _dormitoryRegistry,
-                    _permissionManager,
-                    _currentEmployee
-                );
-                dormitoriesView.Show();
+                var v = new DormitoriesView();
+                var p = new DormitoriesPresenter(v, _sys);
+                v.Show();
             };
 
             // Навигация: Учёт комнат
             _view.ManageRoomsButton.Click += (s, e) =>
             {
-                var roomsView = new RoomsView();
-                var roomsPresenter = new RoomsPresenter(
-                    roomsView,
-                    _dormitoryRegistry,
-                    _permissionManager,
-                    _currentEmployee
-                );
-                roomsView.Show();
+                var v = new RoomsView();
+                var p = new RoomsPresenter(v, _sys);
+                v.Show();
             };
 
-            // Навигация: Регистрация жильцов и детей
+            // Навигация: Регистрация жильцов
             _view.ManageOccupantsButton.Click += (s, e) =>
             {
-                var residentsView = new ResidentsView();
-                var residentsPresenter = new ResidentsPresenter(
-                    residentsView,
-                    _occupantRegistry,
-                    _permissionManager,
-                    _passportValidator,
-                    _currentEmployee
-                );
-                residentsView.Show();
+                var v = new ResidentsView();
+                var p = new ResidentsPresenter(v, _sys);
+                v.Show();
+            };
+
+            // Навигация: Учёт документов
+            _view.ManageDocumentsButton.Click += (s, e) =>
+            {
+                var v = new DocumentsView();
+                var p = new DocumentsPresenter(v, _sys);
+                v.Show();
             };
 
             // Logout
@@ -110,28 +81,38 @@ namespace CouseWork3Semester.Presenters
             {
                 try
                 {
-                    _authManager.Logout();
+                    _sys.AuthManager.Logout();
 
                     var loginView = new LoginView();
-                    // Назначаем новое главное окно до закрытия текущего, чтобы приложение не завершилось
                     Application.Current.MainWindow = loginView;
 
-                    var loginPresenter = new LoginPresenter(_authManager, loginView, employee =>
+                    var loginPresenter = new LoginPresenter(_sys.AuthManager, loginView, newEmployee =>
                     {
-                        // После повторного логина — обратно в Dashboard
-                        var dashboardView = new DashboardView();
-                        var dashboardPresenter = new DashboardPresenter(
-                            employee,
-                            _permissionManager,
-                            _dormitoryRegistry,
-                            _occupantRegistry,
-                            _passportValidator,
-                            _authManager
-                        );
-                        dashboardPresenter.InitializeDashboard(dashboardView);
+                        // Пересобираем систему с новым текущим сотрудником
+                        var newSys = new Services.AccountingSystem(
+                            _sys.DormitoryRegistry,
+                            _sys.OccupantRegistry,
+                            _sys.SettlementEvictionService,
+                            _sys.PaymentService,
+                            _sys.ReportService,
+                            _sys.SearchService,
+                            _sys.AuthManager,
+                            _sys.PermissionManager,
+                            _sys.DocumentOccupantService,
+                            _sys.PassportValidator,
+                            _sys.DocumentValidator,
+                            newEmployee
+                        )
+                        {
+                            // Если ниже добавите DocumentRegistry как свойство — присвойте его здесь
+                            DocumentRegistry = _sys.DocumentRegistry
+                        };
 
-                        Application.Current.MainWindow = dashboardView;
-                        dashboardView.Show();
+                        var dash = new DashboardView();
+                        var dashPresenter = new DashboardPresenter(newSys);
+                        dashPresenter.InitializeDashboard(dash);
+                        Application.Current.MainWindow = dash;
+                        dash.Show();
                     });
 
                     loginView.Show();

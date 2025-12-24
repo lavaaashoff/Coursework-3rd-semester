@@ -10,22 +10,14 @@ namespace CouseWork3Semester.Presenters
     public class RoomsPresenter
     {
         private readonly RoomsView _view;
-        private readonly IDormitoryRegistry _registry;
-        private readonly IPermissionManager _permissionManager;
-        private readonly IEmployee _currentEmployee;
-
+        private readonly IAccountingSystem _sys;
+        private IEmployee _employee => _sys.GetCurrentEmployee();
         private IDormitory _selectedDormitory;
 
-        public RoomsPresenter(
-            RoomsView view,
-            IDormitoryRegistry registry,
-            IPermissionManager permissionManager,
-            IEmployee currentEmployee)
+        public RoomsPresenter(RoomsView view, IAccountingSystem accountingSystem)
         {
             _view = view ?? throw new ArgumentNullException(nameof(view));
-            _registry = registry ?? throw new ArgumentNullException(nameof(registry));
-            _permissionManager = permissionManager ?? throw new ArgumentNullException(nameof(permissionManager));
-            _currentEmployee = currentEmployee ?? throw new ArgumentNullException(nameof(currentEmployee));
+            _sys = accountingSystem ?? throw new ArgumentNullException(nameof(accountingSystem));
 
             WireEvents();
             ApplyPermissions();
@@ -39,24 +31,19 @@ namespace CouseWork3Semester.Presenters
             _view.UpdateRoomButton.Click += (s, e) => UpdateSelectedRoom();
             _view.RemoveRoomButton.Click += (s, e) => RemoveSelectedRoom();
             _view.RefreshButton.Click += (s, e) => LoadRooms();
-
             _view.RoomsGrid.SelectionChanged += (s, e) => FillEditFieldsFromSelection();
         }
 
         private void ApplyPermissions()
         {
-            var canManageRooms = _permissionManager.CanRolePerformAction(_currentEmployee.Role, "ManageRooms");
-
+            var canManageRooms = _sys.PermissionManager.CanRolePerformAction(_employee.Role, "ManageRooms");
             _view.AddRoomGroup.Visibility = canManageRooms ? Visibility.Visible : Visibility.Collapsed;
             _view.EditRoomGroup.Visibility = canManageRooms ? Visibility.Visible : Visibility.Collapsed;
-
-            // Для Commandant/AdminStaff — просмотр.
-            // Управление свободными местами делается через страницы заселения/выселения и сервисы, а не здесь.
         }
 
         private void LoadDormitoriesDropdown()
         {
-            var dorms = _registry.GetAllDormitories()
+            var dorms = _sys.DormitoryRegistry.GetAllDormitories()
                 .OrderBy(d => d.Number)
                 .Select(d => new DormitoryDropdownItem
                 {
@@ -67,11 +54,10 @@ namespace CouseWork3Semester.Presenters
 
             _view.DormitoryComboBox.ItemsSource = dorms;
 
-            // Автовыбор первого, если есть
             if (dorms.Any())
             {
                 _view.DormitoryComboBox.SelectedIndex = 0;
-                _selectedDormitory = _registry.GetDormitoryByNumber(dorms[0].Number);
+                _selectedDormitory = _sys.DormitoryRegistry.GetDormitoryByNumber(dorms[0].Number);
                 LoadRooms();
             }
         }
@@ -88,7 +74,7 @@ namespace CouseWork3Semester.Presenters
                     return;
                 }
 
-                _selectedDormitory = _registry.GetDormitoryByNumber((int)selectedNumber);
+                _selectedDormitory = _sys.DormitoryRegistry.GetDormitoryByNumber((int)selectedNumber);
                 if (_selectedDormitory == null)
                 {
                     MessageBox.Show("Dormitory not found.", "Error",
@@ -97,10 +83,7 @@ namespace CouseWork3Semester.Presenters
                 }
 
                 var rooms = _selectedDormitory.GetAllRooms() ?? new List<IRoom>();
-
-                var items = rooms.Select(MapToViewItem)
-                                 .OrderBy(r => r.Number)
-                                 .ToList();
+                var items = rooms.Select(MapToViewItem).OrderBy(r => r.Number).ToList();
 
                 _view.RoomsGrid.ItemsSource = items;
                 ClearAddFields();
@@ -133,7 +116,7 @@ namespace CouseWork3Semester.Presenters
         {
             try
             {
-                if (!_permissionManager.CanRolePerformAction(_currentEmployee.Role, "ManageRooms"))
+                if (!_sys.PermissionManager.CanRolePerformAction(_employee.Role, "ManageRooms"))
                 {
                     MessageBox.Show("You do not have permission to add rooms.", "Access denied",
                         MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -175,9 +158,7 @@ namespace CouseWork3Semester.Presenters
                     return;
                 }
 
-                // Создаём комнату через реализацию IRoom
-                var room = new Models.Room(number, area, type, floor);
-
+                var room = new CouseWork3Semester.Models.Room(number, area, type, floor);
                 _selectedDormitory.AddRoom(room);
 
                 ClearAddFields();
@@ -194,7 +175,7 @@ namespace CouseWork3Semester.Presenters
         {
             try
             {
-                if (!_permissionManager.CanRolePerformAction(_currentEmployee.Role, "ManageRooms"))
+                if (!_sys.PermissionManager.CanRolePerformAction(_employee.Role, "ManageRooms"))
                 {
                     MessageBox.Show("You do not have permission to edit rooms.", "Access denied",
                         MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -215,7 +196,6 @@ namespace CouseWork3Semester.Presenters
                     return;
                 }
 
-                // Редактирование возможно ТОЛЬКО для пустых комнат (иначе интерфейс не позволяет изменить свойства)
                 var existing = _selectedDormitory.GetAllRooms()?.FirstOrDefault(r => r.Number == item.Number);
                 if (existing == null)
                 {
@@ -231,7 +211,6 @@ namespace CouseWork3Semester.Presenters
                     return;
                 }
 
-                // Новые значения
                 if (!int.TryParse(_view.EditRoomNumberTextBox.Text, out var newNumber) || newNumber <= 0)
                 {
                     MessageBox.Show("Room number must be a positive integer.", "Validation error",
@@ -260,7 +239,6 @@ namespace CouseWork3Semester.Presenters
                     return;
                 }
 
-                // Реализация "редактирования": удалить пустую старую комнату и добавить новую с обновлёнными свойствами
                 var removed = _selectedDormitory.RemoveRoom(existing.Number);
                 if (!removed)
                 {
@@ -269,7 +247,7 @@ namespace CouseWork3Semester.Presenters
                     return;
                 }
 
-                var newRoom = new Models.Room(newNumber, newArea, newType, newFloor);
+                var newRoom = new CouseWork3Semester.Models.Room(newNumber, newArea, newType, newFloor);
                 _selectedDormitory.AddRoom(newRoom);
 
                 ClearEditFields();
@@ -286,7 +264,7 @@ namespace CouseWork3Semester.Presenters
         {
             try
             {
-                if (!_permissionManager.CanRolePerformAction(_currentEmployee.Role, "ManageRooms"))
+                if (!_sys.PermissionManager.CanRolePerformAction(_employee.Role, "ManageRooms"))
                 {
                     MessageBox.Show("You do not have permission to remove rooms.", "Access denied",
                         MessageBoxButton.OK, MessageBoxImage.Warning);

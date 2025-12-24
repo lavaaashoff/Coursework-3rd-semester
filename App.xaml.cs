@@ -17,37 +17,65 @@ namespace CouseWork3Semester
             base.OnStartup(e);
             Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
 
-            // Пример данных (удалить позже)
             var employees = new List<IEmployee>
             {
-                new Employee("admin", "admin", "Vital Suhomlinvo", UserRole.Administrator),
-                new Employee("com", "com", "Vital Suhomlinvo", UserRole.Commandant),
-                new Employee("staff", "staff", "Vital Suhomlinvo", UserRole.AdminStaff)
+                new Employee("adm", "adm", "Vital Suhomlinvo", UserRole.Administrator),
+                new Employee("com", "com", "Vital Suhomlinvo", UserRole.Administrator),
+                new Employee("adm", "com", "Vital Suhomlinvo", UserRole.Administrator)
             };
             var authManager = new AuthManager(employees);
 
-            // Глобальные зависимости, которые будем передавать в Dashboard
+            // Создаём зависимости
             var permissionManager = new PermissionManager();
             var dormitoryRegistry = new DormitoryRegistry();
             var occupantRegistry = new OccupantRegistry();
             var passportValidator = new PassportValidator();
+            var documentRegistry = new DocumentRegistry();
+            var documentValidator = new DocumentValidator(); // ваша реализация
+            var documentOccupantService = new DocumentOccupantService(documentRegistry, occupantRegistry, documentValidator);
 
-            // Открытие Login
+            // Собираем AccountingSystem 
+            var accountingSystem = new AccountingSystem(
+                dormitoryRegistry,
+                occupantRegistry,
+                settlementEvictionService: new SettlementEvictionService(), // если есть реальная реализация/инициализация
+                paymentService: new PaymentService(),                        // при необходимости
+                reportService: new ReportService(dormitoryRegistry, occupantRegistry, new PaymentService()),
+                searchService: new SearchService(dormitoryRegistry, occupantRegistry),
+                authManager,
+                permissionManager,
+                documentOccupantService,
+                passportValidator,
+                documentValidator,
+                currentEmployee: null,
+                documentRegistry: documentRegistry
+            );
+
+            // Login
             var loginView = new LoginView();
             Application.Current.MainWindow = loginView;
 
-            var loginPresenter = new LoginPresenter(authManager, loginView, currentEmployee =>
+            var loginPresenter = new LoginPresenter(authManager, loginView, employee =>
             {
-                var dashboardView = new DashboardView();
-                var dashboardPresenter = new DashboardPresenter(
-                    currentEmployee,
-                    permissionManager,
-                    dormitoryRegistry,
-                    occupantRegistry,
-                    passportValidator,
-                    authManager
+                // Обновляем текущего сотрудника через пересборку (или добавьте сеттер, если хотите)
+                var sysForUser = new AccountingSystem(
+                    accountingSystem.DormitoryRegistry,
+                    accountingSystem.OccupantRegistry,
+                    accountingSystem.SettlementEvictionService,
+                    accountingSystem.PaymentService,
+                    accountingSystem.ReportService,
+                    accountingSystem.SearchService,
+                    accountingSystem.AuthManager,
+                    accountingSystem.PermissionManager,
+                    accountingSystem.DocumentOccupantService,
+                    accountingSystem.PassportValidator,
+                    accountingSystem.DocumentValidator,
+                    employee,
+                    accountingSystem.DocumentRegistry
                 );
 
+                var dashboardView = new DashboardView();
+                var dashboardPresenter = new DashboardPresenter(sysForUser);
                 dashboardPresenter.InitializeDashboard(dashboardView);
                 Application.Current.MainWindow = dashboardView;
                 dashboardView.Show();
