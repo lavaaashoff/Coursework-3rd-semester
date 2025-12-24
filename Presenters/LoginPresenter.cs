@@ -1,6 +1,6 @@
 ﻿using CouseWork3Semester.Interfaces;
 using CouseWork3Semester.Views;
-using System.Windows;
+using System;
 
 namespace CouseWork3Semester.Presenters
 {
@@ -8,28 +8,36 @@ namespace CouseWork3Semester.Presenters
     {
         private readonly IAuthManager _authManager;
         private readonly LoginView _view;
+        private readonly Action<IEmployee> _onLoginSuccess;
 
-        public LoginPresenter(IAuthManager authManager, LoginView view)
+        public LoginPresenter(IAuthManager authManager, LoginView view, Action<IEmployee> onLoginSuccess)
         {
-            _authManager = authManager;
-            _view = view;
+            _authManager = authManager ?? throw new ArgumentNullException(nameof(authManager));
+            _view = view ?? throw new ArgumentNullException(nameof(view));
+            _onLoginSuccess = onLoginSuccess ?? throw new ArgumentNullException(nameof(onLoginSuccess));
 
-            // Подключаем обработчики событий
             _view.LoginButton.Click += OnLoginButtonClicked;
         }
 
-        private void OnLoginButtonClicked(object sender, RoutedEventArgs e)
+        private void OnLoginButtonClicked(object sender, EventArgs e)
         {
-            string username = _view.UsernameTextBox.Text;
-            string password = _view.PasswordBox.Password;
+            var username = _view.UsernameTextBox.Text;
+            var password = _view.PasswordBox.Password;
 
             try
             {
-                _authManager.Login(username, password);
-                MessageBox.Show("Login successful!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                var currentEmployee = _authManager.Login(username, password);
+
+                // Сначала скрываем Login, чтобы приложение не закрывалось раньше времени
+                _view.Hide();
+
+                // Открываем Dashboard через колбэк (там MainWindow будет назначен на Dashboard)
+                _onLoginSuccess?.Invoke(currentEmployee);
+
+                // И только потом закрываем Login
                 _view.Close();
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 _view.MessageTextBlock.Text = $"Error: {ex.Message}";
             }

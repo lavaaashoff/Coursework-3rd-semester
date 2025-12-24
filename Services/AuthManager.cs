@@ -21,7 +21,7 @@ namespace CouseWork3Semester.Services
 
         // Реализация методов интерфейса
 
-        public void Login(string login, string password)
+        public IEmployee Login(string login, string password)
         {
             if (string.IsNullOrWhiteSpace(login))
                 throw new ArgumentException("Логин не может быть пустым", nameof(login));
@@ -41,6 +41,7 @@ namespace CouseWork3Semester.Services
 
             currentUser = employee;
             Console.WriteLine($"Вход выполнен: {employee.FullName}, Роль: {employee.Role}");
+            return currentUser;
         }
 
         public void ChangePassword(IEmployee employee, string oldPassword, string newPassword)
