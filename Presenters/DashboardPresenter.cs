@@ -76,6 +76,13 @@ namespace CouseWork3Semester.Presenters
                 v.Show();
             };
 
+            _view.ManageEvictionsButton.Click += (s, e) =>
+            {
+                var v = new SettlementEvictionsView();
+                var p = new SettlementEvictionsPresenter(v, _sys);
+                v.Show();
+            };
+
             // Logout
             _view.LogoutButton.Click += (s, e) =>
             {
