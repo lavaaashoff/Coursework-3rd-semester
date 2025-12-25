@@ -14,15 +14,19 @@ namespace CouseWork3Semester.Services
 
         public JsonStorageService(string storagePath)
         {
+            // Только папка проекта: ./Storage/state.json
             StoragePath = string.IsNullOrWhiteSpace(storagePath)
                 ? Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Storage", "state.json")
                 : storagePath;
 
             _settings = new JsonSerializerSettings
             {
-                TypeNameHandling = TypeNameHandling.Auto,
+                // Полные метаданные типов — надёжно для интерфейсов
+                TypeNameHandling = TypeNameHandling.All,
                 PreserveReferencesHandling = PreserveReferencesHandling.All,
-                Formatting = Formatting.Indented
+                Formatting = Formatting.Indented,
+                MetadataPropertyHandling = MetadataPropertyHandling.ReadAhead,
+                ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor
             };
         }
 
@@ -45,39 +49,81 @@ namespace CouseWork3Semester.Services
 
             var json = JsonConvert.SerializeObject(state, _settings);
 
+            // Атомарная запись: во временный файл + замена, плюс .bak
+            var tmpPath = StoragePath + ".tmp";
+            var bakPath = StoragePath + ".bak";
 
-            using var fs = new FileStream(
-                StoragePath,
+            using (var fs = new FileStream(
+                tmpPath,
                 FileMode.Create,
                 FileAccess.Write,
                 FileShare.None,
                 bufferSize: 64 * 1024,
-                options: FileOptions.WriteThrough 
-            );
-            using var writer = new StreamWriter(fs, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
-            writer.Write(json);
-            writer.Flush();
-            fs.Flush(true);
+                FileOptions.None))
+            using (var writer = new StreamWriter(fs, new UTF8Encoding(false)))
+            {
+                writer.Write(json);
+                writer.Flush();
+                fs.Flush(true);
+            }
+
+            try
+            {
+                if (File.Exists(StoragePath))
+                {
+                    File.Copy(StoragePath, bakPath, overwrite: true);
+                }
+            }
+            catch { /* резервная копия необязательна */ }
+
+            try
+            {
+                File.Copy(tmpPath, StoragePath, overwrite: true);
+            }
+            finally
+            {
+                try { if (File.Exists(tmpPath)) File.Delete(tmpPath); } catch { }
+            }
         }
 
         public bool TryLoad(out DataState state)
         {
             state = null;
 
-            if (!File.Exists(StoragePath))
+            // Читаем только из ./Storage/state.json; без AppData
+            var pathToRead = StoragePath;
+            if (!File.Exists(pathToRead))
+            {
+                // Если основного нет — пробуем резервную копию
+                var bakPath = StoragePath + ".bak";
+                if (!File.Exists(bakPath)) return false;
+                pathToRead = bakPath;
+            }
+
+            try
+            {
+                var info = new FileInfo(pathToRead);
+                if (!info.Exists || info.Length < 2)
+                    return false;
+
+                using (var fs = new FileStream(
+                    pathToRead,
+                    FileMode.Open,
+                    FileAccess.Read,
+                    FileShare.ReadWrite))
+                using (var reader = new StreamReader(fs, Encoding.UTF8, true))
+                {
+                    var json = reader.ReadToEnd();
+                    state = JsonConvert.DeserializeObject<DataState>(json, _settings);
+                    return state != null;
+                }
+            }
+            catch
+            {
+                // Падение на основном/резервном — считаем, что состояния нет
+                state = null;
                 return false;
-
-            using var fs = new FileStream(
-                StoragePath,
-                FileMode.Open,
-                FileAccess.Read,
-                FileShare.Read
-            );
-            using var reader = new StreamReader(fs, Encoding.UTF8, detectEncodingFromByteOrderMarks: true);
-            var json = reader.ReadToEnd();
-
-            state = JsonConvert.DeserializeObject<DataState>(json, _settings);
-            return state != null;
+            }
         }
     }
 }

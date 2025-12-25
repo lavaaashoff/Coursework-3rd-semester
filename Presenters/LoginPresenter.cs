@@ -30,9 +30,22 @@ namespace CouseWork3Semester.Presenters
 
                 _view.Hide();
 
-                _onLoginSuccess?.Invoke(currentEmployee);
+                var success = false;
+                try
+                {
+                    _onLoginSuccess?.Invoke(currentEmployee);
+                    success = true;
+                }
+                catch (Exception ex)
+                {
+                    _view.MessageTextBlock.Text = $"Error: {ex.Message}";
+                    _view.Show();
+                }
 
-                _view.Close();
+                if (success)
+                {
+                    _view.Close();
+                }
             }
             catch (Exception ex)
             {
