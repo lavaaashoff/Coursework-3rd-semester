@@ -1,38 +1,34 @@
-﻿using CouseWork3Semester.Interfaces;
-using Newtonsoft.Json;
+﻿﻿using CouseWork3Semester.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.Text;
+using Newtonsoft.Json;
 
 namespace CouseWork3Semester.Models
 {
     [JsonObject(MemberSerialization.OptIn)]
     public class Dormitory : IDormitory
     {
+        [JsonProperty]
         public int Number { get; private set; }
+
+        [JsonProperty]
         public string Address { get; private set; }
+
+        [JsonProperty]
         public string PhotoPath { get; private set; }
 
         [JsonProperty]
         private List<IRoom> rooms;
 
-
-        public Dormitory(int number, string address)
+        [JsonConstructor]
+        public Dormitory(int number, string address, string photoPath = "")
         {
             ValidateConstructorParameters(number, address);
 
             Number = number;
             Address = address;
-            PhotoPath = string.Empty;
-            rooms = new List<IRoom>();
-        }
-
-        public Dormitory(int number, string address, string photoPath) : this(number, address)
-        {
-            if (!string.IsNullOrWhiteSpace(photoPath))
-            {
-                PhotoPath = photoPath;
-            }
+            PhotoPath = photoPath ?? string.Empty;
+            rooms = rooms ?? new List<IRoom>();
         }
 
         private void ValidateConstructorParameters(int number, string address)
@@ -46,7 +42,6 @@ namespace CouseWork3Semester.Models
             if (address.Length < 5)
                 throw new ArgumentException("Address is too short", nameof(address));
         }
-
 
         public void AddRoom(IRoom room)
         {
@@ -100,7 +95,7 @@ namespace CouseWork3Semester.Models
 
             foreach (var room in rooms)
             {
-                totalPlaces += room.Type; 
+                totalPlaces += room.Type;
             }
 
             return totalPlaces;
@@ -130,6 +125,11 @@ namespace CouseWork3Semester.Models
             return occupiedPlaces;
         }
 
+        public int GetTotalOccupantsCount()
+        {
+            return rooms.Sum(room => room.GetAllOccupants().Count);
+        }
+
         public double GetOccupancyPercentage()
         {
             int totalPlaces = GetTotalPlacesCount();
@@ -144,36 +144,19 @@ namespace CouseWork3Semester.Models
 
         public List<IRoom> GetAvailableRoomsList()
         {
-            return rooms
-                .Where(r => r.CheckAvailablePlaces())
-                .OrderBy(r => r.Number)
-                .ToList();
+            return rooms.FindAll(r => r.CheckAvailablePlaces());
         }
-
 
         public List<IRoom> GetAllRooms()
         {
-            return new List<IRoom>(rooms.OrderBy(r => r.Number));
+            return new List<IRoom>(rooms);
         }
-
-        public int GetTotalOccupantsCount()
-        {
-            return rooms.Sum(room => room.GetAllOccupants().Count);
-        }
-
 
         private bool IsValidPhotoUrl(string url)
         {
-            if (string.IsNullOrWhiteSpace(url))
-                return true;
-
-            if (Uri.TryCreate(url, UriKind.Absolute, out Uri uriResult))
-            {
-                return uriResult.Scheme == Uri.UriSchemeHttp ||
-                       uriResult.Scheme == Uri.UriSchemeHttps;
-            }
-
-            return false;
+            return Uri.TryCreate(url, UriKind.Absolute, out var _);
         }
+
+
     }
 }

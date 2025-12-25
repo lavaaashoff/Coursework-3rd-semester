@@ -2,16 +2,23 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Newtonsoft.Json;
 
 namespace CouseWork3Semester.Models
 {
+    [JsonObject(MemberSerialization.OptIn)]
     public class Passport : IPassport
     {
+        [JsonProperty]
         private string _series;
+        [JsonProperty]
         private string _number;
+        [JsonProperty]
         private DateTime _issueDate;
+        [JsonProperty]
         private string _issuedBy;
 
+        [JsonProperty]
         public string Series
         {
             get => _series;
@@ -27,6 +34,7 @@ namespace CouseWork3Semester.Models
             }
         }
 
+        [JsonProperty]
         public string Number
         {
             get => _number;
@@ -42,6 +50,7 @@ namespace CouseWork3Semester.Models
             }
         }
 
+        [JsonProperty]
         public DateTime IssueDate
         {
             get => _issueDate;
@@ -57,6 +66,7 @@ namespace CouseWork3Semester.Models
             }
         }
 
+        [JsonProperty]
         public string IssuedBy
         {
             get => _issuedBy;
@@ -72,6 +82,7 @@ namespace CouseWork3Semester.Models
             }
         }
 
+        [JsonConstructor]
         public Passport(string series, string number, DateTime issueDate, string issuedBy)
         {
             Series = series;
@@ -85,7 +96,6 @@ namespace CouseWork3Semester.Models
         {
         }
 
-
         public string GetFullPassportData()
         {
             return $"Passport: {Series} {Number}\n" +
@@ -93,7 +103,6 @@ namespace CouseWork3Semester.Models
                    $"Issued by: {IssuedBy}\n" +
                    $"Years since issue: {GetYearsSinceIssue()}";
         }
-
 
         public int GetYearsSinceIssue()
         {

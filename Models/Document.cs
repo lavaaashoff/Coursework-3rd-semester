@@ -2,14 +2,18 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Newtonsoft.Json;
 
 namespace CouseWork3Semester.Models
 {
+    [JsonObject(MemberSerialization.OptIn)]
     public class Document : IDocument
     {
+        [JsonProperty]
         public Guid Id { get; private set; }
 
         private string _series;
+        [JsonProperty]
         public string Series
         {
             get => _series;
@@ -26,6 +30,7 @@ namespace CouseWork3Semester.Models
         }
 
         private string _number;
+        [JsonProperty]
         public string Number
         {
             get => _number;
@@ -42,6 +47,7 @@ namespace CouseWork3Semester.Models
         }
 
         private string _title;
+        [JsonProperty]
         public string Title
         {
             get => _title;
@@ -58,6 +64,7 @@ namespace CouseWork3Semester.Models
         }
 
         private DateTime _issueDate;
+        [JsonProperty]
         public DateTime IssueDate
         {
             get => _issueDate;
@@ -74,6 +81,7 @@ namespace CouseWork3Semester.Models
         }
 
         private string _issuedBy;
+        [JsonProperty]
         public string IssuedBy
         {
             get => _issuedBy;
@@ -89,12 +97,8 @@ namespace CouseWork3Semester.Models
             }
         }
 
-        private string _comment;
-        public string Comment
-        {
-            get => _comment;
-            set;
-        }
+        [JsonProperty]
+        public string Comment { get; set; }
 
         public Document(string series, string number, string title, DateTime issueDate, string issuedBy, string comment = null)
         {
@@ -107,7 +111,8 @@ namespace CouseWork3Semester.Models
             Comment = comment;
         }
 
-        public Document(Guid id, string series, string number, string title, DateTime issueDate, string issuedBy, string comment)
+        [JsonConstructor]
+        public Document(Guid id, string series, string number, string title, DateTime issueDate, string issuedBy, string comment = null)
             : this(series, number, title, issueDate, issuedBy, comment)
         {
             Id = id;
@@ -128,6 +133,5 @@ namespace CouseWork3Semester.Models
                    $"Issued By: {IssuedBy}\n" +
                    $"Comment: {Comment}\n";
         }
-
     }
 }

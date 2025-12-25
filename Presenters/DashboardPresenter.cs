@@ -1,8 +1,9 @@
-﻿using System;
-using System.Windows;
-using CouseWork3Semester.Interfaces;
-using CouseWork3Semester.Views;
+﻿using CouseWork3Semester.Interfaces;
+using CouseWork3Semester.Registries;
 using CouseWork3Semester.Services;
+using CouseWork3Semester.Views;
+using System;
+using System.Windows;
 
 namespace CouseWork3Semester.Presenters
 {
@@ -106,36 +107,73 @@ namespace CouseWork3Semester.Presenters
             {
                 try
                 {
+                    DebugLogger.Write("DashboardPresenter: Logout clicked. Saving state...");
                     _storage.Save(_sys);
-
                     _sys.AuthManager.Logout();
 
                     var loginView = new LoginView();
                     Application.Current.MainWindow = loginView;
+                    Application.Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
 
                     var loginPresenter = new LoginPresenter(_sys.AuthManager, loginView, newEmployee =>
                     {
+                        DebugLogger.Write($"DashboardPresenter: Logout -> new login success user={newEmployee?.Login}");
+
+                        DormitoryRegistry dormitoryRegistry;
+                        OccupantRegistry occupantRegistry;
+                        DocumentRegistry documentRegistry;
+                        SettlementEvictionService settlementEvictionService;
+                        InventoryRegistry inventoryRegistry;
+
+                        if (_storage.TryLoad(out var state) && state != null)
+                        {
+                            DebugLogger.Write("State loaded after logout");
+                            dormitoryRegistry = state.DormitoryRegistry ?? new DormitoryRegistry();
+                            occupantRegistry = state.OccupantRegistry ?? new OccupantRegistry();
+                            documentRegistry = state.DocumentRegistry ?? new DocumentRegistry();
+                            settlementEvictionService = state.SettlementEvictionService ?? new SettlementEvictionService();
+                            inventoryRegistry = state.InventoryRegistry ?? new InventoryRegistry();
+                        }
+                        else
+                        {
+                            DebugLogger.Write("No state after logout, using empty registries");
+                            dormitoryRegistry = _sys.DormitoryRegistry as DormitoryRegistry ?? new DormitoryRegistry();
+                            occupantRegistry = _sys.OccupantRegistry as OccupantRegistry ?? new OccupantRegistry();
+                            documentRegistry = _sys.DocumentRegistry as DocumentRegistry ?? new DocumentRegistry();
+                            settlementEvictionService = _sys.SettlementEvictionService as SettlementEvictionService ?? new SettlementEvictionService();
+                            inventoryRegistry = _sys.InventoryRegistry as InventoryRegistry ?? new InventoryRegistry();
+                        }
+
+                        var reportService = new ReportService(dormitoryRegistry, occupantRegistry);
+                        var searchService = new SearchService(dormitoryRegistry, occupantRegistry);
+                        var documentOccupantService = new DocumentOccupantService(documentRegistry, occupantRegistry, _sys.DocumentValidator);
+
                         var newSys = new Services.AccountingSystem(
-                            _sys.DormitoryRegistry,
-                            _sys.OccupantRegistry,
-                            _sys.SettlementEvictionService,
-                            _sys.ReportService,
-                            _sys.SearchService,
+                            dormitoryRegistry,
+                            occupantRegistry,
+                            settlementEvictionService,
+                            reportService,
+                            searchService,
                             _sys.AuthManager,
                             _sys.PermissionManager,
-                            _sys.DocumentOccupantService,
+                            documentOccupantService,
                             _sys.PassportValidator,
                             _sys.DocumentValidator,
                             currentEmployee: newEmployee,
-                            documentRegistry: _sys.DocumentRegistry,
-                            inventoryRegistry: _sys.InventoryRegistry
+                            documentRegistry: documentRegistry,
+                            inventoryRegistry: inventoryRegistry
                         );
 
                         var dash = new DashboardView();
                         var dashPresenter = new DashboardPresenter(newSys, _storage);
                         dashPresenter.InitializeDashboard(dash);
+
                         Application.Current.MainWindow = dash;
                         dash.Show();
+                        dash.Activate();
+
+                        loginView.Close();
+                        DebugLogger.Write("DashboardPresenter: switched to new dashboard after logout");
                     });
 
                     loginView.Show();
@@ -143,6 +181,7 @@ namespace CouseWork3Semester.Presenters
                 }
                 catch (Exception ex)
                 {
+                    DebugLogger.Write("DashboardPresenter: Logout failed", ex);
                     MessageBox.Show($"Logout failed: {ex.Message}", "Error",
                         MessageBoxButton.OK, MessageBoxImage.Error);
                 }

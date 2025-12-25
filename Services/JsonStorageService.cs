@@ -14,25 +14,26 @@ namespace CouseWork3Semester.Services
 
         public JsonStorageService(string storagePath)
         {
-            // Только папка проекта: ./Storage/state.json
             StoragePath = string.IsNullOrWhiteSpace(storagePath)
                 ? Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Storage", "state.json")
                 : storagePath;
 
             _settings = new JsonSerializerSettings
             {
-                // Полные метаданные типов — надёжно для интерфейсов
                 TypeNameHandling = TypeNameHandling.All,
                 PreserveReferencesHandling = PreserveReferencesHandling.All,
                 Formatting = Formatting.Indented,
                 MetadataPropertyHandling = MetadataPropertyHandling.ReadAhead,
                 ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor
             };
+
+            DebugLogger.Write($"JsonStorageService initialized. StoragePath={StoragePath}");
         }
 
         public void Save(IAccountingSystem system)
         {
             if (system == null) throw new ArgumentNullException(nameof(system));
+            DebugLogger.Write("Save() started");
 
             var state = new DataState
             {
@@ -43,84 +44,119 @@ namespace CouseWork3Semester.Services
                 InventoryRegistry = system.InventoryRegistry as Registries.InventoryRegistry ?? new Registries.InventoryRegistry()
             };
 
-            var dir = Path.GetDirectoryName(StoragePath);
-            if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
-                Directory.CreateDirectory(dir);
-
-            var json = JsonConvert.SerializeObject(state, _settings);
-
-            // Атомарная запись: во временный файл + замена, плюс .bak
-            var tmpPath = StoragePath + ".tmp";
-            var bakPath = StoragePath + ".bak";
-
-            using (var fs = new FileStream(
-                tmpPath,
-                FileMode.Create,
-                FileAccess.Write,
-                FileShare.None,
-                bufferSize: 64 * 1024,
-                FileOptions.None))
-            using (var writer = new StreamWriter(fs, new UTF8Encoding(false)))
-            {
-                writer.Write(json);
-                writer.Flush();
-                fs.Flush(true);
-            }
-
             try
             {
-                if (File.Exists(StoragePath))
+                var dir = Path.GetDirectoryName(StoragePath);
+                if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
+                    Directory.CreateDirectory(dir);
+
+                var json = JsonConvert.SerializeObject(state, _settings);
+                DebugLogger.Write($"Save() JSON length={json?.Length ?? 0}");
+
+                // Атомарная запись: tmp + .bak + замена
+                var tmpPath = StoragePath + ".tmp";
+                var bakPath = StoragePath + ".bak";
+
+                using (var fs = new FileStream(tmpPath, FileMode.Create, FileAccess.Write, FileShare.None, 64 * 1024, FileOptions.None))
+                using (var writer = new StreamWriter(fs, new UTF8Encoding(false)))
                 {
-                    File.Copy(StoragePath, bakPath, overwrite: true);
+                    writer.Write(json);
+                    writer.Flush();
+                    fs.Flush(true);
                 }
-            }
-            catch { /* резервная копия необязательна */ }
 
-            try
-            {
+                try
+                {
+                    if (File.Exists(StoragePath))
+                    {
+                        File.Copy(StoragePath, bakPath, overwrite: true);
+                        DebugLogger.Write("Save() backup created (.bak)");
+                    }
+                }
+                catch (Exception exBak)
+                {
+                    DebugLogger.Write("Save() backup failed", exBak);
+                }
+
                 File.Copy(tmpPath, StoragePath, overwrite: true);
-            }
-            finally
-            {
+                DebugLogger.Write("Save() file replaced");
+
                 try { if (File.Exists(tmpPath)) File.Delete(tmpPath); } catch { }
+                DebugLogger.Write("Save() completed");
+            }
+            catch (Exception ex)
+            {
+                DebugLogger.Write("Save() failed", ex);
+                throw;
             }
         }
 
         public bool TryLoad(out DataState state)
         {
             state = null;
-
-            // Читаем только из ./Storage/state.json; без AppData
             var pathToRead = StoragePath;
+            DebugLogger.Write($"TryLoad() path={pathToRead}");
+
             if (!File.Exists(pathToRead))
             {
-                // Если основного нет — пробуем резервную копию
-                var bakPath = StoragePath + ".bak";
-                if (!File.Exists(bakPath)) return false;
-                pathToRead = bakPath;
+                var bak = StoragePath + ".bak";
+                if (!File.Exists(bak))
+                {
+                    DebugLogger.Write("TryLoad() file not found");
+                    return false;
+                }
+                pathToRead = bak;
+                DebugLogger.Write("TryLoad() fallback to .bak");
             }
 
             try
             {
                 var info = new FileInfo(pathToRead);
-                if (!info.Exists || info.Length < 2)
-                    return false;
+                DebugLogger.Write($"TryLoad() file exists. size={info.Length} bytes");
 
-                using (var fs = new FileStream(
-                    pathToRead,
-                    FileMode.Open,
-                    FileAccess.Read,
-                    FileShare.ReadWrite))
+                if (!info.Exists || info.Length < 2)
+                {
+                    DebugLogger.Write("TryLoad() file too small");
+                    return false;
+                }
+
+                using (var fs = new FileStream(pathToRead, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                 using (var reader = new StreamReader(fs, Encoding.UTF8, true))
                 {
                     var json = reader.ReadToEnd();
+                    DebugLogger.Write($"TryLoad() read json length={json?.Length ?? 0}");
+
                     state = JsonConvert.DeserializeObject<DataState>(json, _settings);
-                    return state != null;
+                    if (state == null)
+                    {
+                        DebugLogger.Write("TryLoad() deserialized state is null");
+                        return false;
+                    }
+
+                    // Быстрая сводка
+                    try
+                    {
+                        var dorms = state.DormitoryRegistry?.Dormitories?.Count ?? -1;
+                        var occs = state.OccupantRegistry?.AllOccupants?.Count ?? -1;
+                        var docs = state.DocumentRegistry?.Documents?.Count ?? -1;
+                        var sets = state.SettlementEvictionService?.Settlements?.Count ?? -1;
+                        var evs = state.SettlementEvictionService?.Evictions?.Count ?? -1;
+                        var items = state.InventoryRegistry?.GetAllItems()?.Count ?? -1;
+
+                        DebugLogger.Write($"TryLoad() summary: Dormitories={dorms}, Occupants={occs}, Documents={docs}, Settlements={sets}, Evictions={evs}, InventoryItems={items}");
+                    }
+                    catch (Exception exSumm)
+                    {
+                        DebugLogger.Write("TryLoad() summary failed", exSumm);
+                    }
                 }
+
+                DebugLogger.Write("TryLoad() success");
+                return true;
             }
-            catch
+            catch (Exception ex)
             {
-                // Падение на основном/резервном — считаем, что состояния нет
+                DebugLogger.Write("TryLoad() failed", ex);
                 state = null;
                 return false;
             }

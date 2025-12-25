@@ -17,7 +17,9 @@ namespace CouseWork3Semester
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
+            DebugLogger.Write("App.OnStartup started");
 
+            // Не завершаем процесс при закрытии Login
             Current.ShutdownMode = ShutdownMode.OnExplicitShutdown;
 
             var employees = new List<IEmployee>
@@ -36,9 +38,11 @@ namespace CouseWork3Semester
             var documentValidator = new DocumentValidator();
 
             var loginView = new LoginView();
-
+            DebugLogger.Write("Showing LoginView");
             var loginPresenter = new LoginPresenter(authManager, loginView, employee =>
             {
+                DebugLogger.Write($"Login success for user={employee?.Login}");
+
                 DormitoryRegistry dormitoryRegistry;
                 OccupantRegistry occupantRegistry;
                 DocumentRegistry documentRegistry;
@@ -47,6 +51,7 @@ namespace CouseWork3Semester
 
                 if (storage.TryLoad(out var state) && state != null)
                 {
+                    DebugLogger.Write("State loaded, building registries from state");
                     dormitoryRegistry = state.DormitoryRegistry ?? new DormitoryRegistry();
                     occupantRegistry = state.OccupantRegistry ?? new OccupantRegistry();
                     documentRegistry = state.DocumentRegistry ?? new DocumentRegistry();
@@ -55,6 +60,7 @@ namespace CouseWork3Semester
                 }
                 else
                 {
+                    DebugLogger.Write("No state available, building empty registries");
                     dormitoryRegistry = new DormitoryRegistry();
                     occupantRegistry = new OccupantRegistry();
                     documentRegistry = new DocumentRegistry();
@@ -82,6 +88,8 @@ namespace CouseWork3Semester
                     inventoryRegistry: inventoryRegistry
                 );
 
+                DebugLogger.Write("AccountingSystem created, preparing DashboardView");
+
                 var dashboardView = new DashboardView();
                 var dashboardPresenter = new DashboardPresenter(sysForUser, storage);
                 dashboardPresenter.InitializeDashboard(dashboardView);
@@ -89,10 +97,22 @@ namespace CouseWork3Semester
                 Application.Current.MainWindow = dashboardView;
                 Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
 
-                dashboardView.Show();
-                dashboardView.Activate();
-
-                loginView.Close();
+                try
+                {
+                    dashboardView.Show();
+                    dashboardView.Activate();
+                    DebugLogger.Write("DashboardView shown and activated");
+                    loginView.Close();
+                    DebugLogger.Write("LoginView closed");
+                }
+                catch (Exception exShow)
+                {
+                    DebugLogger.Write("Failed to show DashboardView", exShow);
+                    // Вернём Login обратно, чтобы не висеть без окна
+                    loginView.Show();
+                    MessageBox.Show($"Failed to open dashboard: {exShow.Message}", "Error",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             });
 
             loginView.Show();
