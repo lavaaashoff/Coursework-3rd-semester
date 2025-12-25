@@ -2,7 +2,6 @@
 using System.IO;
 using System.Text;
 using CouseWork3Semester.Interfaces;
-using CouseWork3Semester.Registries;
 using Newtonsoft.Json;
 
 namespace CouseWork3Semester.Services
@@ -15,7 +14,10 @@ namespace CouseWork3Semester.Services
 
         public JsonStorageService(string storagePath)
         {
-            StoragePath = storagePath;
+            StoragePath = string.IsNullOrWhiteSpace(storagePath)
+                ? Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Storage", "state.json")
+                : storagePath;
+
             _settings = new JsonSerializerSettings
             {
                 TypeNameHandling = TypeNameHandling.Auto,
@@ -30,11 +32,11 @@ namespace CouseWork3Semester.Services
 
             var state = new DataState
             {
-                DormitoryRegistry = system.DormitoryRegistry as DormitoryRegistry ?? new DormitoryRegistry(),
-                OccupantRegistry = system.OccupantRegistry as OccupantRegistry ?? new OccupantRegistry(),
-                DocumentRegistry = system.DocumentRegistry as DocumentRegistry ?? new DocumentRegistry(),
+                DormitoryRegistry = system.DormitoryRegistry as Registries.DormitoryRegistry ?? new Registries.DormitoryRegistry(),
+                OccupantRegistry = system.OccupantRegistry as Registries.OccupantRegistry ?? new Registries.OccupantRegistry(),
+                DocumentRegistry = system.DocumentRegistry as Registries.DocumentRegistry ?? new Registries.DocumentRegistry(),
                 SettlementEvictionService = system.SettlementEvictionService as SettlementEvictionService ?? new SettlementEvictionService(),
-                InventoryRegistry = system.InventoryRegistry as InventoryRegistry ?? new InventoryRegistry()
+                InventoryRegistry = system.InventoryRegistry as Registries.InventoryRegistry ?? new Registries.InventoryRegistry()
             };
 
             var dir = Path.GetDirectoryName(StoragePath);
@@ -42,16 +44,38 @@ namespace CouseWork3Semester.Services
                 Directory.CreateDirectory(dir);
 
             var json = JsonConvert.SerializeObject(state, _settings);
-            File.WriteAllText(StoragePath, json, Encoding.UTF8);
+
+
+            using var fs = new FileStream(
+                StoragePath,
+                FileMode.Create,
+                FileAccess.Write,
+                FileShare.None,
+                bufferSize: 64 * 1024,
+                options: FileOptions.WriteThrough 
+            );
+            using var writer = new StreamWriter(fs, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+            writer.Write(json);
+            writer.Flush();
+            fs.Flush(true);
         }
 
         public bool TryLoad(out DataState state)
         {
             state = null;
+
             if (!File.Exists(StoragePath))
                 return false;
 
-            var json = File.ReadAllText(StoragePath, Encoding.UTF8);
+            using var fs = new FileStream(
+                StoragePath,
+                FileMode.Open,
+                FileAccess.Read,
+                FileShare.Read
+            );
+            using var reader = new StreamReader(fs, Encoding.UTF8, detectEncodingFromByteOrderMarks: true);
+            var json = reader.ReadToEnd();
+
             state = JsonConvert.DeserializeObject<DataState>(json, _settings);
             return state != null;
         }

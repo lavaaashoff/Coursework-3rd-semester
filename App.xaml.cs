@@ -29,11 +29,7 @@ namespace CouseWork3Semester
             var authManager = new AuthManager(employees);
             var permissionManager = new PermissionManager();
 
-            var storagePath = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                "CouseWork3Semester",
-                "state.json"
-            );
+            var storagePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Storage", "state.json");
             var storage = new JsonStorageService(storagePath);
 
             var passportValidator = new PassportValidator();
