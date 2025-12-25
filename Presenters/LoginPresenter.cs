@@ -28,13 +28,10 @@ namespace CouseWork3Semester.Presenters
             {
                 var currentEmployee = _authManager.Login(username, password);
 
-                // Сначала скрываем Login, чтобы приложение не закрывалось раньше времени
                 _view.Hide();
 
-                // Открываем Dashboard через колбэк (там MainWindow будет назначен на Dashboard)
                 _onLoginSuccess?.Invoke(currentEmployee);
 
-                // И только потом закрываем Login
                 _view.Close();
             }
             catch (Exception ex)

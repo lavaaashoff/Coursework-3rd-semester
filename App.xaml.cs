@@ -25,7 +25,6 @@ namespace CouseWork3Semester
             };
             var authManager = new AuthManager(employees);
 
-            // Создаём зависимости
             var permissionManager = new PermissionManager();
             var dormitoryRegistry = new DormitoryRegistry();
             var occupantRegistry = new OccupantRegistry();
@@ -34,10 +33,8 @@ namespace CouseWork3Semester
             var documentValidator = new DocumentValidator();
             var documentOccupantService = new DocumentOccupantService(documentRegistry, occupantRegistry, documentValidator);
 
-            // Новый реестр инвентаря
             var inventoryRegistry = new InventoryRegistry();
 
-            // Собираем AccountingSystem (без текущего сотрудника)
             var accountingSystem = new AccountingSystem(
                 dormitoryRegistry,
                 occupantRegistry,
@@ -54,13 +51,11 @@ namespace CouseWork3Semester
                 inventoryRegistry: inventoryRegistry
             );
 
-            // Login
             var loginView = new LoginView();
             Application.Current.MainWindow = loginView;
 
             var loginPresenter = new LoginPresenter(authManager, loginView, employee =>
             {
-                // Пересобираем систему с текущим сотрудником
                 var sysForUser = new AccountingSystem(
                     accountingSystem.DormitoryRegistry,
                     accountingSystem.OccupantRegistry,

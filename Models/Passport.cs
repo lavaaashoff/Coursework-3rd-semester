@@ -7,13 +7,11 @@ namespace CouseWork3Semester.Models
 {
     public class Passport : IPassport
     {
-        // Приватные поля для валидации
         private string _series;
         private string _number;
         private DateTime _issueDate;
         private string _issuedBy;
 
-        // Свойства интерфейса
         public string Series
         {
             get => _series;
@@ -49,11 +47,9 @@ namespace CouseWork3Semester.Models
             get => _issueDate;
             private set
             {
-                // Проверка, что дата не в будущем
                 if (value > DateTime.Now)
                     throw new ArgumentException("Issue date cannot be in the future", nameof(IssueDate));
 
-                // Проверка, что дата не слишком старая (например, не старше 100 лет)
                 if (value < DateTime.Now.AddYears(-100))
                     throw new ArgumentException("Issue date is too old", nameof(IssueDate));
 
@@ -76,7 +72,6 @@ namespace CouseWork3Semester.Models
             }
         }
 
-        // Конструкторы
         public Passport(string series, string number, DateTime issueDate, string issuedBy)
         {
             Series = series;
@@ -85,13 +80,11 @@ namespace CouseWork3Semester.Models
             IssuedBy = issuedBy;
         }
 
-        // Конструктор для создания паспорта с текущей датой выдачи
         public Passport(string series, string number, string issuedBy)
             : this(series, number, DateTime.Now, issuedBy)
         {
         }
 
-        // Методы интерфейса
 
         public string GetFullPassportData()
         {
@@ -101,19 +94,12 @@ namespace CouseWork3Semester.Models
                    $"Years since issue: {GetYearsSinceIssue()}";
         }
 
-        // Дополнительные методы
-
-        public string GetPassportSeriesAndNumber()
-        {
-            return $"{Series} {Number}";
-        }
 
         public int GetYearsSinceIssue()
         {
             DateTime today = DateTime.Today;
             int years = today.Year - IssueDate.Year;
 
-            // Если день выдачи еще не наступил в этом году, вычитаем 1 год
             if (IssueDate.Date > today.AddYears(-years))
             {
                 years--;

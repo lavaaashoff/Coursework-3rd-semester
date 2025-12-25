@@ -21,10 +21,8 @@ namespace CouseWork3Semester.Services
         public IPassportValidator PassportValidator { get; }
         public IDocumentValidator DocumentValidator { get; }
         public IDocumentRegistry DocumentRegistry { get; set; }
-        // ДОБАВЛЕНО: реестр инвентаря
         public IInventoryRegistry InventoryRegistry { get; private set; }
 
-        // Базовый конструктор (без currentEmployee), требует inventoryRegistry
         public AccountingSystem(
             IDormitoryRegistry dormitoryRegistry,
             IOccupantRegistry occupantRegistry,
@@ -56,7 +54,6 @@ namespace CouseWork3Semester.Services
             CurrentEmployee = null;
         }
 
-        // Перегруженный конструктор — как в твоём вызове: с currentEmployee и далее documentRegistry, inventoryRegistry
         public AccountingSystem(
             IDormitoryRegistry dormitoryRegistry,
             IOccupantRegistry occupantRegistry,
@@ -93,22 +90,18 @@ namespace CouseWork3Semester.Services
         public IEmployee GetCurrentEmployee() => CurrentEmployee;
 
 
-
-        // Методы из UML
         public void RegisterOccupant(IRoomOccupant occupant, IRoom room, IDocument document)
         {
             if (occupant == null) throw new ArgumentNullException(nameof(occupant));
             if (room == null) throw new ArgumentNullException(nameof(room));
             if (document == null) throw new ArgumentNullException(nameof(document));
 
-            // Проверка прав (только через интерфейсы)
             if (CurrentEmployee != null && PermissionManager != null)
             {
                 if (!PermissionManager.CanRolePerformAction(CurrentEmployee.Role, "ManageOccupants"))
                     throw new InvalidOperationException("Недостаточно прав для выполнения заселения.");
             }
 
-            // Валидация документа (только интерфейс валидатора)
             var format = DocumentValidator.CheckFormat(document);
             if (!format.IsValid)
                 throw new InvalidOperationException($"Документ некорректен: {format.Message}");
@@ -116,22 +109,16 @@ namespace CouseWork3Semester.Services
             if (!DocumentValidator.CheckValidity(document, DateTime.Now))
                 throw new InvalidOperationException("Документ недействителен на текущую дату.");
 
-            // Проверка наличия мест в комнате
             if (!room.CheckAvailablePlaces())
                 throw new InvalidOperationException($"В комнате №{room.Number} нет свободных мест.");
 
-            // Привязка документа к жильцу (интерфейс сервиса)
             DocumentOccupantService.AttachDocumentToOccupant(document, occupant);
 
-            // Добавление жильца в комнату и реестр (интерфейсы)
             if (!room.AddOccupant(occupant))
                 throw new InvalidOperationException("Не удалось добавить жильца в комнату.");
 
             OccupantRegistry.AddOccupant(occupant);
 
-            // При необходимости можно инициировать платеж (интерфейс IPaymentService),
-            // но без конкретных моделей делать это опционально:
-            // PaymentService.ChargePayment(occupant, DateTime.Now, amount);
         }
 
         public void EvictOccupant(IRoomOccupant occupant, string reason)
@@ -139,14 +126,12 @@ namespace CouseWork3Semester.Services
             if (occupant == null) throw new ArgumentNullException(nameof(occupant));
             if (string.IsNullOrWhiteSpace(reason)) throw new ArgumentException("Причина выселения должна быть указана.", nameof(reason));
 
-            // Проверка прав (только интерфейсы)
             if (CurrentEmployee != null && PermissionManager != null)
             {
                 if (!PermissionManager.CanRolePerformAction(CurrentEmployee.Role, "ManageOccupants"))
                     throw new InvalidOperationException("Недостаточно прав для выполнения выселения.");
             }
 
-            // Находим комнату через интерфейсы общежитий/комнат (без конкретных классов)
             IRoom roomFound = null;
             foreach (var dorm in DormitoryRegistry.GetAllDormitories())
             {
@@ -161,18 +146,14 @@ namespace CouseWork3Semester.Services
                 if (roomFound != null) break;
             }
 
-            // Если комнату нашли — удаляем из неё
             if (roomFound != null)
             {
                 if (!roomFound.RemoveOccupant(occupant.Id))
                     throw new InvalidOperationException("Не удалось выселить жильца из комнаты.");
             }
 
-            // Удаляем из реестра жильцов
             OccupantRegistry.RemoveOccupant(occupant.Id);
 
-            // При желании можно задействовать сервис выселений через его интерфейс,
-            // но без создания конкретной IEviction/ ISettlement здесь ограничимся базовой процедурой.
         }
 
         public string GetReport(string reportType, Dictionary<string, object> parameters)
@@ -223,7 +204,6 @@ namespace CouseWork3Semester.Services
             }
         }
 
-        // Доп. методы из интерфейса
         public object Search(string searchType, string query)
         {
             if (string.IsNullOrWhiteSpace(searchType))
@@ -241,7 +221,6 @@ namespace CouseWork3Semester.Services
 
                 case "rooms":
                 case "комнаты":
-                    // Ожидаем, что query = номер общежития
                     if (int.TryParse(query, out var dormNumber))
                     {
                         var dormitory = DormitoryRegistry.GetDormitoryByNumber(dormNumber);

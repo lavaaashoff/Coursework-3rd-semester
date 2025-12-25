@@ -7,16 +7,13 @@ namespace CouseWork3Semester.Registries
 {
     public class OccupantRegistry : IOccupantRegistry
     {
-        // Храним ВСЕХ обитателей через базовый интерфейс
         public Dictionary<Guid, IRoomOccupant> AllOccupants { get; private set; }
 
-        // Конструктор
         public OccupantRegistry()
         {
             AllOccupants = new Dictionary<Guid, IRoomOccupant>();
         }
 
-        // Основные методы
 
         public void AddOccupant(IRoomOccupant occupant)
         {
@@ -35,7 +32,6 @@ namespace CouseWork3Semester.Registries
             return occupant;
         }
 
-        // Специализированные методы добавления
 
         public void AddResident(IResident resident)
         {
@@ -44,7 +40,6 @@ namespace CouseWork3Semester.Registries
 
         public void AddChild(IChild child)
         {
-            // Проверяем, что родитель существует
             var parent = GetAllResidents().FirstOrDefault(r => r.Id == child.ParentResidentId);
             if (parent == null)
                 throw new InvalidOperationException($"Parent resident with ID {child.ParentResidentId} not found");
@@ -52,7 +47,6 @@ namespace CouseWork3Semester.Registries
             AddOccupant(child);
         }
 
-        // Получение списков по типам
 
         public List<IRoomOccupant> GetAllOccupants()
         {
@@ -75,8 +69,6 @@ namespace CouseWork3Semester.Registries
                 .ToList();
         }
 
-
-        // Дополнительные методы
 
         public bool RemoveOccupant(Guid id)
         {

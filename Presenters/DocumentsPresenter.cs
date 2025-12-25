@@ -51,7 +51,6 @@ namespace CouseWork3Semester.Presenters
 
         private void LoadDocuments()
         {
-            // Требуется доступ к DocumentRegistry через IAccountingSystem
             var docs = _sys.DocumentRegistry.GetAllDocuments() ?? new List<IDocument>();
             var items = docs.Select(d => new DocumentViewItem
             {

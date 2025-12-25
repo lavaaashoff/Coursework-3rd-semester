@@ -7,7 +7,6 @@ namespace CouseWork3Semester.Models
 {
     public class Document : IDocument
     {
-        // Реализация свойств интерфейса
         public Guid Id { get; private set; }
 
         private string _series;
@@ -97,8 +96,6 @@ namespace CouseWork3Semester.Models
             set;
         }
 
-        // Конструкторы
-
         public Document(string series, string number, string title, DateTime issueDate, string issuedBy, string comment = null)
         {
             Id = Guid.NewGuid();
@@ -110,14 +107,12 @@ namespace CouseWork3Semester.Models
             Comment = comment;
         }
 
-        // Конструктор для загрузки из базы данных (с существующим Id)
         public Document(Guid id, string series, string number, string title, DateTime issueDate, string issuedBy, string comment)
             : this(series, number, title, issueDate, issuedBy, comment)
         {
             Id = id;
         }
 
-        // Реализация методов интерфейса
         public void ChangeComment(string text)
         {
             Comment = text;
@@ -134,6 +129,5 @@ namespace CouseWork3Semester.Models
                    $"Comment: {Comment}\n";
         }
 
-        // Дополнительные методы
     }
 }

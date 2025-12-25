@@ -25,9 +25,7 @@ namespace CouseWork3Semester.Registries
             {
                 return concrete.Update(name, quantity);
             }
-            // Если модель другая, можно заменить объект целиком (минимальная реализация):
             var updated = new CouseWork3Semester.Models.InventoryItem(name, quantity, item.DormitoryNumber, item.RoomNumber);
-            // Сохраняем тот же Id
             typeof(CouseWork3Semester.Models.InventoryItem)
                 .GetProperty(nameof(CouseWork3Semester.Models.InventoryItem.Id))!
                 .SetValue(updated, id);

@@ -8,10 +8,8 @@ namespace CouseWork3Semester.Models
 {
     public class Eviction : IEviction
     {
-        // Константы для валидации
         private const int MAX_OCCUPANTS_PER_EVICTION = 10;
 
-        // Свойства (без статусов)
         public Guid Id { get; private set; }
         public DateTime EvictionDate { get; private set; }
         public string Reason { get; private set; }
@@ -19,7 +17,6 @@ namespace CouseWork3Semester.Models
         public List<IRoomOccupant> Occupants { get; private set; }
         public ISettlement RelatedSettlement { get; private set; }
 
-        // Дата выполнения операции
         private DateTime? _executionDate;
 
         public Eviction()
@@ -28,7 +25,6 @@ namespace CouseWork3Semester.Models
             Occupants = new List<IRoomOccupant>();
         }
 
-        // Упрощённая логика: инициализация сразу выполняет выселение (без статусов)
         public void InitializeEviction(Guid ID, List<IRoomOccupant> occupants, IRoom room, string reason, ISettlement relatedSettlement)
         {
             if (occupants == null || !occupants.Any())
@@ -49,7 +45,6 @@ namespace CouseWork3Semester.Models
             RelatedSettlement = relatedSettlement;
             EvictionDate = DateTime.Now.Date;
 
-            // Сразу выселяем
             var currentRoomOccupants = Room.GetAllOccupants() ?? new List<IRoomOccupant>();
             var missing = Occupants.Where(o => !currentRoomOccupants.Any(co => co.Id == o.Id)).ToList();
             if (missing.Any())

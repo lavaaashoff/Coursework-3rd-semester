@@ -8,13 +8,11 @@ namespace CouseWork3Semester.Services
 {
     public class DocumentOccupantService : IDocumentOccupantService
     {
-        // Зависимости как в UML (через интерфейсы) + реестр жильцов
         private readonly IDocumentRegistry _documentRegistry;
         private readonly IOccupantRegistry _occupantRegistry;
         private readonly List<IDocumentOccupantLink> _links;
         private readonly IDocumentValidator _documentValidator;
 
-        // Конструктор
         public DocumentOccupantService(
             IDocumentRegistry documentRegistry,
             IOccupantRegistry occupantRegistry,
@@ -26,7 +24,6 @@ namespace CouseWork3Semester.Services
             _links = new List<IDocumentOccupantLink>();
         }
 
-        // Конструктор с начальными связями
         public DocumentOccupantService(
             IDocumentRegistry documentRegistry,
             IOccupantRegistry occupantRegistry,
@@ -39,7 +36,6 @@ namespace CouseWork3Semester.Services
             _links = initialLinks ?? new List<IDocumentOccupantLink>();
         }
 
-        // Метод из UML: Привязать документ жильцу
         public bool AttachDocumentToOccupant(IDocument document, IRoomOccupant occupant)
         {
             if (document == null)
@@ -48,7 +44,6 @@ namespace CouseWork3Semester.Services
             if (occupant == null)
                 throw new ArgumentNullException(nameof(occupant), "Жилец не может быть null");
 
-            // 1. Проверяем валидность документа
             var validationResult = _documentValidator.CheckFormat(document);
             if (!validationResult.IsValid)
             {
@@ -56,7 +51,6 @@ namespace CouseWork3Semester.Services
                 return false;
             }
 
-            // 2. Проверяем, не существует ли уже такая связь
             bool linkExists = _links.Any(link =>
                 link.DocumentId == document.Id &&
                 link.OccupantId == occupant.Id);
@@ -67,10 +61,8 @@ namespace CouseWork3Semester.Services
                 return false;
             }
 
-            // 3. Проверяем, зарегистрирован ли уже документ
             if (!_documentRegistry.ContainsDocument(document.Id))
             {
-                // Документ новый - проверяем, нет ли другого документа с таким же номером
                 var existingDocumentWithSameNumber = _documentRegistry.FindDocumentByNumber(document.Number);
                 if (existingDocumentWithSameNumber != null)
                 {
@@ -78,17 +70,14 @@ namespace CouseWork3Semester.Services
                     return false;
                 }
 
-                // Регистрируем новый документ
                 _documentRegistry.RegisterDocument(document);
             }
 
-            // 4. Регистрируем жильца (если еще не зарегистрирован)
             if (!_occupantRegistry.ContainsOccupant(occupant.Id))
             {
                 _occupantRegistry.AddOccupant(occupant);
             }
 
-            // 5. Создаем новую связь
             var newLink = new DocumentOccupantLink(document.Id, occupant.Id);
             _links.Add(newLink);
 
@@ -96,7 +85,6 @@ namespace CouseWork3Semester.Services
             return true;
         }
 
-        // Метод из UML: Получить документы жильца
         public List<IDocument> GetDocumentsByOccupant(IRoomOccupant occupant)
         {
             if (occupant == null)
@@ -105,20 +93,17 @@ namespace CouseWork3Semester.Services
             return GetDocumentsByOccupantId(occupant.Id);
         }
 
-        // Метод из UML: Получить жильцов по документу
         public List<IRoomOccupant> GetOccupantsByDocument(IDocument document)
         {
             if (document == null)
                 throw new ArgumentNullException(nameof(document), "Документ не может быть null");
 
-            // Получаем ID жильцов, связанных с документом
             var occupantIds = _links
                 .Where(link => link.DocumentId == document.Id)
                 .Select(link => link.OccupantId)
                 .Distinct()
                 .ToList();
 
-            // Получаем объекты жильцов из реестра
             var occupants = new List<IRoomOccupant>();
             foreach (var occupantId in occupantIds)
             {
@@ -132,19 +117,14 @@ namespace CouseWork3Semester.Services
             return occupants;
         }
 
-        // Вспомогательные методы
-
-        // Получить документы жильца по его ID
         public List<IDocument> GetDocumentsByOccupantId(Guid occupantId)
         {
-            // Находим все связи для этого жильца
             var documentIds = _links
                 .Where(link => link.OccupantId == occupantId)
                 .Select(link => link.DocumentId)
                 .Distinct()
                 .ToList();
 
-            // Получаем документы по ID
             var documents = new List<IDocument>();
             foreach (var documentId in documentIds)
             {
@@ -158,7 +138,6 @@ namespace CouseWork3Semester.Services
             return documents;
         }
 
-        // Получить ID жильцов по документу
         public List<Guid> GetOccupantIdsByDocument(IDocument document)
         {
             if (document == null)
@@ -167,7 +146,6 @@ namespace CouseWork3Semester.Services
             return GetOccupantIdsByDocumentId(document.Id);
         }
 
-        // Получить ID жильцов по ID документа
         public List<Guid> GetOccupantIdsByDocumentId(Guid documentId)
         {
             return _links
@@ -177,7 +155,6 @@ namespace CouseWork3Semester.Services
                 .ToList();
         }
 
-        // Проверить существование связи
         public bool IsDocumentAttachedToOccupant(Guid documentId, Guid occupantId)
         {
             return _links.Any(link =>
@@ -185,20 +162,16 @@ namespace CouseWork3Semester.Services
                 link.OccupantId == occupantId);
         }
 
-        // Удалить связь
         public bool DetachDocumentFromOccupant(Guid documentId, Guid occupantId)
         {
             int removedCount = _links.RemoveAll(link =>
                 link.DocumentId == documentId &&
                 link.OccupantId == occupantId);
 
-            // Если у жильца больше нет документов, можно решить удалять ли его из реестра
-            // Пока оставим жильца в реестре, даже если у него нет документов
 
             return removedCount > 0;
         }
 
-        // Получить все связи
         public List<IDocumentOccupantLink> GetAllLinks()
         {
             return new List<IDocumentOccupantLink>(_links);

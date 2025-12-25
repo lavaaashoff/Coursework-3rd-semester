@@ -7,16 +7,13 @@ namespace CouseWork3Semester.Models
 {
     public class Room : IRoom
     {
-        // Свойства
         public int Number { get; private set; }
         public double Area { get; private set; }
         public int Type { get; private set; }
         public int Floor { get; private set; }
 
-        // Приватное поле для списка жильцов
         private List<IRoomOccupant> occupants;
 
-        // Конструктор
         public Room(int number, double area, int type, int floor)
         {
             Number = number;
@@ -26,18 +23,15 @@ namespace CouseWork3Semester.Models
             occupants = new List<IRoomOccupant>();
         }
 
-        // Методы интерфейса
 
         public bool AddOccupant(IRoomOccupant occupant)
         {
             if (occupant == null)
                 throw new ArgumentNullException(nameof(occupant));
 
-            // Проверяем, есть ли свободные места
             if (!CheckAvailablePlaces())
                 return false;
 
-            // Проверяем, не живет ли уже такой жилец в комнате
             if (occupants.Exists(r => r.Id == occupant.Id))
                 return false;
 

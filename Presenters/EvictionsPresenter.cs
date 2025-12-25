@@ -169,20 +169,13 @@ namespace CouseWork3Semester.Presenters
                     return;
                 }
 
-                // Ищем последнее заселение по комнате (если модель выселения требует RelatedSettlement)
                 var related = _sys.SettlementEvictionService
                     .GetSettlementsForRoom(room)
                     .OrderByDescending(s => s.SettlementDate)
                     .FirstOrDefault();
 
                 var eviction = new Eviction();
-                // Используем упрощённую модель: InitializeEviction сразу выполняет выселение и фиксирует дату
                 eviction.InitializeEviction(Guid.NewGuid(), selectedOccupants, room, reason, related);
-
-                // Переопределяем дату при необходимости (если нужно использовать выбранную в DatePicker)
-                // Это зависит от вашей реализации Eviction; можно игнорировать, если EvictionDate уже ставится внутри
-                // Здесь просто демонстрируем присвоение, если свойство имеет сеттер. Если нет — уберите строку.
-                // eviction.EvictionDate = date; // закомментировано на случай readonly в модели
 
                 _sys.SettlementEvictionService.AddEviction(eviction);
 
@@ -192,7 +185,7 @@ namespace CouseWork3Semester.Presenters
                 _view.StatusText.Text = $"Eviction added for room {room.Number}.";
 
                 LoadEvictions();
-                LoadRoomOccupants(); // список жильцов в комнате обновится
+                LoadRoomOccupants();
             }
             catch (Exception ex)
             {

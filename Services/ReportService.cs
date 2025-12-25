@@ -81,7 +81,6 @@ namespace CouseWork3Semester.Services
                 report.AppendLine();
                 report.AppendLine($"Общежитие №{d.Number} — {d.Address}");
                 report.AppendLine($"Комнат: {d.GetAllRooms().Count}");
-                // Здесь можно дополнить данными из InventoryRegistry, если нужно формировать отчёт по предметам
             }
 
             return report.ToString();

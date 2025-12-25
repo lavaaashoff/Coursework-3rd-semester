@@ -7,16 +7,13 @@ namespace CouseWork3Semester.Registries
 {
     public class DormitoryRegistry : IDormitoryRegistry
     {
-        // Публичное свойство для списка общежитий
         public List<IDormitory> Dormitories { get; private set; }
 
-        // Конструктор
         public DormitoryRegistry()
         {
             Dormitories = new List<IDormitory>();
         }
 
-        // Конструктор с начальным списком общежитий
         public DormitoryRegistry(List<IDormitory> initialDormitories)
         {
             if (initialDormitories == null)
@@ -24,18 +21,15 @@ namespace CouseWork3Semester.Registries
 
             Dormitories = initialDormitories;
 
-            // Проверяем уникальность номеров
             ValidateUniqueDormitoryNumbers();
         }
 
-        // Реализация методов интерфейса
 
         public void AddDormitory(IDormitory dormitory)
         {
             if (dormitory == null)
                 throw new ArgumentNullException(nameof(dormitory));
 
-            // Проверяем, нет ли уже общежития с таким номером
             if (Dormitories.Any(d => d.Number == dormitory.Number))
                 throw new InvalidOperationException($"Dormitory with number {dormitory.Number} already exists in registry");
 
@@ -52,7 +46,6 @@ namespace CouseWork3Semester.Registries
             if (dormitoryToRemove == null)
                 return false;
 
-            // Проверяем, что в общежитии нет проживающих
             if (dormitoryToRemove.GetTotalOccupantsCount() > 0)
             {
                 throw new InvalidOperationException($"Cannot remove dormitory {number} because it has occupants");
@@ -106,11 +99,6 @@ namespace CouseWork3Semester.Registries
             int occupiedPlaces = GetTotalOccupiedPlacesCount();
             return Math.Round((double)occupiedPlaces / totalPlaces * 100, 2);
         }
-
-
-
-
-        // Вспомогательные методы
 
         private void ValidateUniqueDormitoryNumbers()
         {

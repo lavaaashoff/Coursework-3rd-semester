@@ -6,10 +6,8 @@ using System.Text;
 
 namespace CouseWork3Semester.Models
 {
-    // Класс жильца, реализующий интерфейс
     public class Resident : IResident
     {
-        // Свойства
         public Guid Id { get; private set; }
         public int RegistrationNumber { get; private set; }
         public string FullName { get; private set; }
@@ -22,7 +20,6 @@ namespace CouseWork3Semester.Models
         public string? StudyPlace { get; set; }
         public DateTime CheckInDate { get; private set; }
 
-        // Конструктор
         public Resident(int registrationNumber, string fullName, Gender gender, DateTime birthDate,
                        Passport passport, DateTime checkInDate)
         {
@@ -34,7 +31,6 @@ namespace CouseWork3Semester.Models
             Passport = passport;
             CheckInDate = checkInDate;
 
-            // Инициализация по умолчанию
             WorkStatus = false;
             Workplace = null;
             StudyStatus = false;
@@ -69,7 +65,6 @@ namespace CouseWork3Semester.Models
             var today = DateTime.Today;
             var age = today.Year - BirthDate.Year;
 
-            // Если день рождения еще не наступил в этом году, вычитаем 1 год
             if (BirthDate.Date > today.AddYears(-age))
             {
                 age--;

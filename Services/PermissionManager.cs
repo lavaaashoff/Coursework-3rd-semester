@@ -12,7 +12,6 @@ namespace CouseWork3Semester.Services
 
         public PermissionManager()
         {
-            // Определяем роли и их действия
             rolePermissions = new Dictionary<UserRole, List<string>>
             {
                 [UserRole.Administrator] = new List<string>
@@ -43,17 +42,15 @@ namespace CouseWork3Semester.Services
             };
         }
 
-        // Проверить, может ли пользователь с заданной ролью выполнить действие
         public bool CanRolePerformAction(UserRole role, string action)
         {
             if (rolePermissions.ContainsKey(role))
             {
                 return rolePermissions[role].Contains(action);
             }
-            return false; // Если роль не найдена, запретить доступ
+            return false; 
         }
 
-        // Получить все действия, разрешённые для роли
         public List<string> GetAllPermissionsForRole(UserRole role)
         {
             if (rolePermissions.ContainsKey(role))

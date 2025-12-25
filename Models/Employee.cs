@@ -8,13 +8,11 @@ namespace CouseWork3Semester.Models
 {
     public class Employee : IEmployee
     {
-        // Свойства
         public string Login { get; private set; }
         public string Password { get; private set; }
         public string FullName { get; private set; }
         public UserRole Role { get; private set; }
 
-        // Конструктор
         public Employee(string login, string password, string fullName, UserRole role)
         {
             Validate(login, password, fullName);
@@ -25,7 +23,6 @@ namespace CouseWork3Semester.Models
             Role = role;
         }
 
-        // Реализация методов интерфейса
 
         public void ChangePassword(string newPassword)
         {
@@ -35,7 +32,6 @@ namespace CouseWork3Semester.Models
             Password = newPassword;
         }
 
-        // Вспомогательные методы
         private void Validate(string login, string password, string fullName)
         {
             if (string.IsNullOrWhiteSpace(login))

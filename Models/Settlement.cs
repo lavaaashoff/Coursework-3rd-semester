@@ -8,18 +8,15 @@ namespace CouseWork3Semester.Models
 {
     public class Settlement : ISettlement
     {
-        // Константы для валидации
         private const int MAX_OCCUPANTS_PER_SETTLEMENT = 10;
         private const int MIN_OCCUPANTS_PER_SETTLEMENT = 1;
 
-        // Свойства (без статусов и активности)
         public Guid Id { get; private set; }
         public DateTime SettlementDate { get; private set; }
         public List<IRoomOccupant> Occupants { get; private set; }
         public IRoom Room { get; private set; }
         public IDocument Document { get; private set; }
 
-        // Дополнительно — дата завершения операции (для информирования)
         private DateTime? _completionDate;
 
         public Settlement()
@@ -28,7 +25,6 @@ namespace CouseWork3Semester.Models
             Occupants = new List<IRoomOccupant>();
         }
 
-        // Упрощённая логика: инициализация сразу выполняет заселение (без статусов)
         public void InitializeSettlement(List<IRoomOccupant> occupants, IRoom room, IDocument document, DateTime date)
         {
             if (occupants == null || occupants.Count < MIN_OCCUPANTS_PER_SETTLEMENT)
@@ -38,7 +34,6 @@ namespace CouseWork3Semester.Models
             if (room == null)
                 throw new ArgumentNullException(nameof(room), "Комната не может быть null");
 
-            // Проверка вместимости комнаты
             var current = room.GetAllOccupants()?.Count ?? 0;
             var capacity = room.Type;
             if (current + occupants.Count > capacity)
@@ -49,14 +44,12 @@ namespace CouseWork3Semester.Models
             Document = document;
             Occupants = new List<IRoomOccupant>(occupants);
 
-            // Сразу заселяем
             var added = new List<IRoomOccupant>();
             foreach (var occ in Occupants)
             {
                 bool ok = Room.AddOccupant(occ);
                 if (!ok)
                 {
-                    // Откат добавленных
                     foreach (var a in added)
                         Room.RemoveOccupant(a.Id);
                     throw new InvalidOperationException($"Не удалось заселить жильца {occ.FullName} в комнату {Room.Number}");

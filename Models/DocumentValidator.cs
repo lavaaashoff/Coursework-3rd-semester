@@ -27,7 +27,6 @@ namespace CouseWork3Semester.Models
                 return result;
             }
 
-            // Проверка серии документа
             if (string.IsNullOrWhiteSpace(document.Series))
             {
                 result.AddError("Серия документа не может быть пустой");
@@ -37,7 +36,6 @@ namespace CouseWork3Semester.Models
                 result.AddError($"Серия документа должна быть длинной {DOCUMENT_SERIES_LENGTH} символов");
             }
 
-            // Проверка номера документа
             if (string.IsNullOrWhiteSpace(document.Number))
             {
                 result.AddError("Номер документа не может быть пустым");
@@ -51,7 +49,6 @@ namespace CouseWork3Semester.Models
                 result.AddError("Document number must contain only digits");
             }
 
-            // Проверка названия документа
             if (string.IsNullOrWhiteSpace(document.Title))
             {
                 result.AddError("Название документа не может быть пустым");
@@ -61,7 +58,6 @@ namespace CouseWork3Semester.Models
                 result.AddError($"Название документа должно содержать минимум {DOCUMENT_TITLE_MIN_LENGTH} символа");
             }
 
-            // Проверка даты выдачи
             if (document.IssueDate == default)
             {
                 result.AddError("Issue date is not set");
@@ -71,7 +67,6 @@ namespace CouseWork3Semester.Models
                 result.AddError("Issue date cannot be in the future");
             }
 
-            // Проверка органа выдачи
             if (string.IsNullOrWhiteSpace(document.IssuedBy))
             {
                 result.AddError("Issuing authority is empty");
@@ -81,7 +76,6 @@ namespace CouseWork3Semester.Models
                 result.AddError($"Issuing authority name is too short (minimum {MIN_ISSUING_AUTHORITY_LENGTH} characters)");
             }
 
-            // Проверка комментария (если есть)
             if (!string.IsNullOrEmpty(document.Comment) && document.Comment.Length > _maxCommentLength)
             {
                 result.AddError($"Комментарий не должен превышать {_maxCommentLength} символов");
@@ -99,15 +93,13 @@ namespace CouseWork3Semester.Models
             if (!formatCheck.IsValid)
                 return false;
 
-            // Проверяем, что дата выдачи не в будущем относительно onDate
             if (document.IssueDate > checkDate)
                 return false;
 
             DateTime dateToCheck = checkDate != DateTime.MinValue ? checkDate : DateTime.Now;
 
-            // Проверяем срок действия (если есть)
             if (document.IssueDate.AddYears(DOCUMENT_VALIDITY_YEARS) < checkDate)
-                return false; // Документ слишком старый
+                return false;
 
             return true;
         }
@@ -117,19 +109,16 @@ namespace CouseWork3Semester.Models
             if (document == null || existingDocuments == null)
                 return false;
 
-            // Проверяем, нет ли такого же документа в списке
             foreach (var existing in existingDocuments)
             {
                 if (existing == null)
                     continue;
 
-                // Документ считается одинаковым, если совпадают серия и номер
                 if (existing.Series == document.Series && existing.Number == document.Number)
                 {
-                    // Но это может быть один и тот же документ (проверяем по дате выдачи)
                     if (existing.IssueDate != document.IssueDate)
                     {
-                        return false; // Найден другой документ с такими же данными
+                        return false;
                     }
                 }
             }

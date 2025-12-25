@@ -7,16 +7,13 @@ namespace CouseWork3Semester.Registries
 {
     public class DocumentRegistry : IDocumentRegistry
     {
-        // Реализация свойства из UML
         public Dictionary<Guid, IDocument> Documents { get; private set; }
 
-        // Конструктор
         public DocumentRegistry()
         {
             Documents = new Dictionary<Guid, IDocument>();
         }
 
-        // Конструктор с начальными документами
         public DocumentRegistry(List<IDocument> initialDocuments)
         {
             Documents = new Dictionary<Guid, IDocument>();
@@ -30,7 +27,6 @@ namespace CouseWork3Semester.Registries
             }
         }
 
-        // Метод из UML: Зарегистрировать документ
         public void RegisterDocument(IDocument document)
         {
             if (document == null)
@@ -42,14 +38,12 @@ namespace CouseWork3Semester.Registries
             Documents.Add(document.Id, document);
         }
 
-        // Метод из UML: Найти документ по ID
         public IDocument FindDocumentById(Guid id)
         {
             Documents.TryGetValue(id, out IDocument document);
             return document;
         }
 
-        // Метод из UML: Найти документ по номеру
         public IDocument FindDocumentByNumber(string number)
         {
             if (string.IsNullOrWhiteSpace(number))
@@ -59,7 +53,6 @@ namespace CouseWork3Semester.Registries
                 .FirstOrDefault(d => d.Number.Equals(number, StringComparison.OrdinalIgnoreCase));
         }
 
-        // Дополнительные методы
 
         public List<IDocument> GetAllDocuments()
         {

@@ -22,7 +22,6 @@ namespace CouseWork3Semester.Presenters
             var employee = _sys.GetCurrentEmployee();
             var pm = _sys.PermissionManager;
 
-            // Видимость по ролям
             _view.ManageDormitoriesButton.Visibility =
                 pm.CanRolePerformAction(employee.Role, "ManageDormitories") ? Visibility.Visible : Visibility.Collapsed;
 
@@ -44,7 +43,6 @@ namespace CouseWork3Semester.Presenters
             _view.ReportsButton.Visibility =
                 pm.CanRolePerformAction(employee.Role, "GenerateReports") ? Visibility.Visible : Visibility.Collapsed;
 
-            // Навигация: Справочник общежитий
             _view.ManageDormitoriesButton.Click += (s, e) =>
             {
                 var v = new DormitoriesView();
@@ -52,7 +50,6 @@ namespace CouseWork3Semester.Presenters
                 v.Show();
             };
 
-            // Навигация: Учёт комнат
             _view.ManageRoomsButton.Click += (s, e) =>
             {
                 var v = new RoomsView();
@@ -60,7 +57,6 @@ namespace CouseWork3Semester.Presenters
                 v.Show();
             };
 
-            // Навигация: Регистрация жильцов
             _view.ManageOccupantsButton.Click += (s, e) =>
             {
                 var v = new ResidentsView();
@@ -68,7 +64,6 @@ namespace CouseWork3Semester.Presenters
                 v.Show();
             };
 
-            // Навигация: Учёт документов
             _view.ManageDocumentsButton.Click += (s, e) =>
             {
                 var v = new DocumentsView();
@@ -76,7 +71,6 @@ namespace CouseWork3Semester.Presenters
                 v.Show();
             };
 
-            // Новая навигация: Менеджер заселений
             _view.ManageSettlementsButton.Click += (s, e) =>
             {
                 var v = new SettlementsView();
@@ -84,7 +78,6 @@ namespace CouseWork3Semester.Presenters
                 v.Show();
             };
 
-            // Новая навигация: Менеджер выселений
             _view.ManageEvictionsButton.Click += (s, e) =>
             {
                 var v = new EvictionsView();
@@ -92,7 +85,6 @@ namespace CouseWork3Semester.Presenters
                 v.Show();
             };
 
-            // Менеджер инвентаря
             _view.ManageInventoryButton.Click += (s, e) =>
             {
                 var v = new InventoryView();
@@ -107,7 +99,6 @@ namespace CouseWork3Semester.Presenters
                 v.Show();
             };
 
-            // Logout
             _view.LogoutButton.Click += (s, e) =>
             {
                 try
@@ -119,7 +110,6 @@ namespace CouseWork3Semester.Presenters
 
                     var loginPresenter = new LoginPresenter(_sys.AuthManager, loginView, newEmployee =>
                     {
-                        // Пересобираем систему с новым текущим сотрудником
                         var newSys = new Services.AccountingSystem(
                             _sys.DormitoryRegistry,
                             _sys.OccupantRegistry,

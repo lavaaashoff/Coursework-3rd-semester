@@ -31,7 +31,6 @@ namespace CouseWork3Semester.Services
             if (Settlements.Any(s => s.Id == settlement.Id))
                 throw new InvalidOperationException("Заселение с таким ID уже добавлено в сервис");
 
-            // Минимальная валидация (без статусов): проверка вместимости перед добавлением уже сделана в модели
             Settlements.Add(settlement);
             Console.WriteLine($"Заселение добавлено: комната {settlement.Room?.Number}, {settlement.Occupants?.Count ?? 0} жильцов");
         }

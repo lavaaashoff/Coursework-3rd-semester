@@ -7,13 +7,11 @@ namespace CouseWork3Semester.Models
 {
     public class DocumentOccupantLink : IDocumentOccupantLink
     {
-        // Реализация свойств интерфейса
         public Guid Id { get; private set; }
         public Guid DocumentId { get; private set; }
         public Guid OccupantId { get; private set; } 
         public DateTime LinkCreatedDate { get; private set; }
 
-        // Конструктор
         public DocumentOccupantLink(Guid documentId, Guid occupantId)
         {
             Id = Guid.NewGuid();
@@ -24,7 +22,6 @@ namespace CouseWork3Semester.Models
             Validate();
         }
 
-        // Конструктор для загрузки из БД
         public DocumentOccupantLink(Guid id, Guid documentId, Guid occupantId, DateTime linkCreatedDate)
         {
             Id = id;
@@ -35,7 +32,6 @@ namespace CouseWork3Semester.Models
             Validate();
         }
 
-        // Валидация
         private void Validate()
         {
             if (DocumentId == Guid.Empty)

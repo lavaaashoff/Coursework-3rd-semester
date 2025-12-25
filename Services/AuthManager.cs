@@ -8,18 +8,15 @@ namespace CouseWork3Semester.Services
 {
     public class AuthManager : IAuthManager
     {
-        // Список сотрудников (в реальном приложении это было бы в базе данных)
         private readonly List<IEmployee> employees;
         private IEmployee currentUser;
 
-        // Конструктор
         public AuthManager(List<IEmployee> employeesList)
         {
             employees = employeesList ?? throw new ArgumentNullException(nameof(employeesList));
             currentUser = null;
         }
 
-        // Реализация методов интерфейса
 
         public IEmployee Login(string login, string password)
         {
@@ -29,13 +26,11 @@ namespace CouseWork3Semester.Services
             if (string.IsNullOrWhiteSpace(password))
                 throw new ArgumentException("Пароль не может быть пустым", nameof(password));
 
-            // Поиск сотрудника по логину
             var employee = employees.FirstOrDefault(e => e.Login == login);
 
             if (employee == null)
                 throw new UnauthorizedAccessException("Пользователь не найден");
 
-            // Проверка пароля
             if (employee.Password != password)
                 throw new UnauthorizedAccessException("Неверный пароль");
 
@@ -55,15 +50,12 @@ namespace CouseWork3Semester.Services
             if (string.IsNullOrWhiteSpace(newPassword))
                 throw new ArgumentException("Новый пароль не может быть пустым", nameof(newPassword));
 
-            // Проверяем, что старый пароль верный
             if (employee.Password != oldPassword)
                 throw new UnauthorizedAccessException("Неверный старый пароль");
 
-            // Проверяем, что новый пароль отличается от старого
             if (oldPassword == newPassword)
                 throw new ArgumentException("Новый пароль должен отличаться от старого");
 
-            // Меняем пароль (в реальном приложении это было бы через метод Employee)
             if (employee is Models.Employee concreteEmployee)
             {
                 concreteEmployee.ChangePassword(newPassword);

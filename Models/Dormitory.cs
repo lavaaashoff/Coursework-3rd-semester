@@ -7,15 +7,12 @@ namespace CouseWork3Semester.Models
 {
     public class Dormitory : IDormitory
     {
-        // Реализация свойств интерфейса
         public int Number { get; private set; }
         public string Address { get; private set; }
         public string PhotoPath { get; private set; }
 
-        // Приватное поле для списка комнат
         private List<IRoom> rooms;
 
-        // Конструкторы
 
         public Dormitory(int number, string address)
         {
@@ -35,7 +32,6 @@ namespace CouseWork3Semester.Models
             }
         }
 
-        // Валидация параметров конструктора
         private void ValidateConstructorParameters(int number, string address)
         {
             if (number <= 0)
@@ -48,14 +44,12 @@ namespace CouseWork3Semester.Models
                 throw new ArgumentException("Address is too short", nameof(address));
         }
 
-        // Реализация методов интерфейса
 
         public void AddRoom(IRoom room)
         {
             if (room == null)
                 throw new ArgumentNullException(nameof(room));
 
-            // Проверяем, нет ли уже комнаты с таким номером
             if (rooms.Exists(r => r.Number == room.Number))
                 throw new InvalidOperationException($"Room with number {room.Number} already exists in dormitory {Number}");
 
@@ -72,7 +66,6 @@ namespace CouseWork3Semester.Models
             if (roomToRemove == null)
                 return false;
 
-            // Проверяем, что комната пустая
             if (roomToRemove.GetAllOccupants().Count > 0)
             {
                 throw new InvalidOperationException($"Cannot remove room {roomNumber} because it has occupants");
@@ -85,12 +78,10 @@ namespace CouseWork3Semester.Models
         {
             if (string.IsNullOrWhiteSpace(photoUrl))
             {
-                // Разрешаем очистку фотографии
                 PhotoPath = string.Empty;
                 return true;
             }
 
-            // Проверяем, является ли строка валидным URL изображения
             if (IsValidPhotoUrl(photoUrl))
             {
                 PhotoPath = photoUrl;
@@ -106,7 +97,7 @@ namespace CouseWork3Semester.Models
 
             foreach (var room in rooms)
             {
-                totalPlaces += room.Type; // Type определяет количество мест
+                totalPlaces += room.Type; 
             }
 
             return totalPlaces;
@@ -156,7 +147,6 @@ namespace CouseWork3Semester.Models
                 .ToList();
         }
 
-        // Дополнительные методы из интерфейса
 
         public List<IRoom> GetAllRooms()
         {
@@ -168,18 +158,14 @@ namespace CouseWork3Semester.Models
             return rooms.Sum(room => room.GetAllOccupants().Count);
         }
 
-        // Вспомогательные методы
 
         private bool IsValidPhotoUrl(string url)
         {
-            // Если строка пустая - это валидно (чтобы можно было очистить фото)
             if (string.IsNullOrWhiteSpace(url))
                 return true;
 
-            // Пытаемся создать URL из строки
             if (Uri.TryCreate(url, UriKind.Absolute, out Uri uriResult))
             {
-                // Проверяем, что это HTTP или HTTPS ссылка
                 return uriResult.Scheme == Uri.UriSchemeHttp ||
                        uriResult.Scheme == Uri.UriSchemeHttps;
             }
