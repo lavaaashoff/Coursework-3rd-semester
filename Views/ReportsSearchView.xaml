@@ -1,0 +1,104 @@
+﻿<Window x:Class="CouseWork3Semester.Views.ReportsSearchView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Search and Reports" Height="680" Width="1100"
+        WindowStartupLocation="CenterScreen">
+    <Grid Margin="10">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="3*"/>
+            <ColumnDefinition Width="2*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Фильтры -->
+        <GroupBox Header="Filters" Grid.ColumnSpan="2" Margin="0,0,0,10">
+            <StackPanel Orientation="Horizontal" Margin="10">
+                <StackPanel Width="280" Margin="0,0,10,0">
+                    <TextBlock Text="Dormitory"/>
+                    <ComboBox x:Name="DormitoryCombo" DisplayMemberPath="Display" SelectedValuePath="Number" Height="28"/>
+                </StackPanel>
+                <StackPanel Width="220" Margin="0,0,10,0">
+                    <TextBlock Text="Room (number)"/>
+                    <TextBox x:Name="RoomNumberTextBox" Height="28"/>
+                </StackPanel>
+                <StackPanel Width="260" Margin="0,0,10,0">
+                    <TextBlock Text="Occupant (name contains)"/>
+                    <TextBox x:Name="OccupantSearchTextBox" Height="28"/>
+                </StackPanel>
+                <StackPanel Width="240" Margin="0,0,10,0">
+                    <TextBlock Text="Document number"/>
+                    <TextBox x:Name="DocumentNumberTextBox" Height="28"/>
+                </StackPanel>
+                <Button x:Name="ApplyFiltersButton" Content="Apply filters" Width="140"/>
+            </StackPanel>
+        </GroupBox>
+
+        <!-- Результаты поиска -->
+        <Grid Grid.Row="1" Grid.Column="0" Margin="0,0,10,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <GroupBox Header="Available rooms (by selected dorm)">
+                <DataGrid x:Name="AvailableRoomsGrid" AutoGenerateColumns="False" IsReadOnly="True" Margin="5">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Room" Binding="{Binding Number}" Width="80"/>
+                        <DataGridTextColumn Header="Floor" Binding="{Binding Floor}" Width="80"/>
+                        <DataGridTextColumn Header="Free places" Binding="{Binding FreePlaces}" Width="120"/>
+                        <DataGridTextColumn Header="Capacity" Binding="{Binding Capacity}" Width="120"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </GroupBox>
+
+            <GroupBox Grid.Row="1" Header="Occupants (search)">
+                <DataGrid x:Name="OccupantsGrid" AutoGenerateColumns="False" IsReadOnly="True" Margin="5">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Name" Binding="{Binding FullName}" Width="220"/>
+                        <DataGridTextColumn Header="Age" Binding="{Binding Age}" Width="80"/>
+                        <DataGridTextColumn Header="Type" Binding="{Binding Type}" Width="120"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </GroupBox>
+
+            <GroupBox Grid.Row="2" Header="Documents (by number)">
+                <DataGrid x:Name="DocumentsGrid" AutoGenerateColumns="False" IsReadOnly="True" Margin="5">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Title" Binding="{Binding Title}" Width="220"/>
+                        <DataGridTextColumn Header="Series" Binding="{Binding Series}" Width="100"/>
+                        <DataGridTextColumn Header="Number" Binding="{Binding Number}" Width="120"/>
+                        <DataGridTextColumn Header="Issued by" Binding="{Binding IssuedBy}" Width="200"/>
+                        <DataGridTextColumn Header="Date" Binding="{Binding IssueDate}" Width="120"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </GroupBox>
+        </Grid>
+
+        <!-- Панель генерации отчётов -->
+        <GroupBox Grid.Row="1" Grid.Column="1" Header="Reports">
+            <StackPanel Margin="10">
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                    <Button x:Name="ReportFreeRoomsButton" Content="Generate: Free rooms (selected dorm)" Width="280" Margin="0,0,10,0"/>
+                    <Button x:Name="ReportResidentsInDormButton" Content="Generate: Residents in selected dorm" Width="300"/>
+                </StackPanel>
+
+                <TextBlock Text="Report output"/>
+                <TextBox x:Name="ReportTextBox" Height="360" VerticalScrollBarVisibility="Auto" AcceptsReturn="True" TextWrapping="Wrap"/>
+
+                <TextBlock x:Name="HintText" Foreground="Gray" Margin="0,10,0,0"/>
+            </StackPanel>
+        </GroupBox>
+
+        <!-- Строка состояния -->
+        <StatusBar Grid.Row="2" Grid.ColumnSpan="2" Margin="0,10,0,0">
+            <StatusBarItem>
+                <TextBlock x:Name="StatusText" Text="Ready"/>
+            </StatusBarItem>
+        </StatusBar>
+    </Grid>
+</Window>

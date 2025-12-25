@@ -100,6 +100,13 @@ namespace CouseWork3Semester.Presenters
                 v.Show();
             };
 
+            _view.ReportsButton.Click += (s, e) =>
+            {
+                var v = new ReportsSearchView();
+                var p = new ReportsSearchPresenter(v, _sys);
+                v.Show();
+            };
+
             // Logout
             _view.LogoutButton.Click += (s, e) =>
             {

@@ -1,7 +1,8 @@
-﻿using CouseWork3Semester.Interfaces;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using CouseWork3Semester.Interfaces;
 
 namespace CouseWork3Semester.Services
 {
@@ -68,51 +69,106 @@ namespace CouseWork3Semester.Services
             return report.ToString();
         }
 
-        public string GeneratePaymentReport(IRoomOccupant occupant, DateTime period)
+        public string GenerateInventoryReport(IDormitory dormitory)
         {
             var report = new StringBuilder();
-            var payments = PaymentService.GetPaymentHistory(occupant);
-            var periodPayments = payments.Where(p => p.AssignmentDate.Month == period.Month && p.AssignmentDate.Year == period.Year).ToList();
+            report.AppendLine("ОТЧЕТ ПО ИНВЕНТАРЮ");
+            report.AppendLine($"Дата: {DateTime.Now:dd.MM.yyyy}");
 
-            report.AppendLine("ОТЧЕТ ПО ОПЛАТАМ");
-            report.AppendLine($"Жилец: {occupant.FullName}");
-            report.AppendLine($"Период: {period:MM.yyyy}");
-            report.AppendLine($"Всего платежей: {periodPayments.Count}");
-            report.AppendLine($"Оплачено: {periodPayments.Where(p => p.Status).Sum(p => p.Amount):C}");
-            report.AppendLine($"Задолженность: {periodPayments.Where(p => !p.Status).Sum(p => p.Amount):C}");
-            report.AppendLine();
+            IEnumerable<IDormitory> dorms = dormitory != null
+                ? new[] { dormitory }
+                : DormitoryRegistry.GetAllDormitories();
 
-            foreach (var payment in periodPayments.OrderBy(p => p.AssignmentDate))
+            foreach (var d in dorms.OrderBy(x => x.Number))
             {
-                report.AppendLine($"{payment.AssignmentDate:dd.MM.yyyy}: {payment.Amount:C} - {(payment.Status ? "Оплачено" : "Не оплачено")}");
+                report.AppendLine();
+                report.AppendLine($"Общежитие №{d.Number} — {d.Address}");
+                report.AppendLine($"Комнат: {d.GetAllRooms().Count}");
+                // Здесь можно дополнить данными из InventoryRegistry, если нужно формировать отчёт по предметам
             }
 
             return report.ToString();
         }
 
-        public string GenerateInventoryReport(IDormitory dormitory)
+        public string GenerateFreeRoomsReport(IDormitory dormitory = null)
         {
-            var report = new StringBuilder();
-            var rooms = dormitory.GetAllRooms();
+            var sb = new StringBuilder();
+            sb.AppendLine("ОТЧЁТ: Список свободных комнат");
+            sb.AppendLine($"Дата: {DateTime.Now:dd.MM.yyyy}");
+            sb.AppendLine();
 
-            report.AppendLine("ОТЧЕТ ПО ИНВЕНТАРЮ");
-            report.AppendLine($"Общежитие: {dormitory.Number}, {dormitory.Address}");
-            report.AppendLine($"Комнат: {rooms.Count}");
-            report.AppendLine();
+            IEnumerable<IDormitory> dorms = dormitory != null
+                ? new[] { dormitory }
+                : DormitoryRegistry.GetAllDormitories();
 
-            foreach (var room in rooms.OrderBy(r => r.Number))
+            int totalFreeRooms = 0;
+
+            foreach (var d in dorms.OrderBy(x => x.Number))
+            {
+                var freeRooms = d.GetAllRooms()
+                    .Where(r => r.GetAvailablePlacesCount() > 0)
+                    .OrderBy(r => r.Number)
+                    .ToList();
+
+                sb.AppendLine($"Общежитие №{d.Number} — {d.Address}");
+                if (freeRooms.Any())
+                {
+                    foreach (var r in freeRooms)
+                    {
+                        sb.AppendLine($"   Комната №{r.Number} (этаж {r.Floor}), свободно мест: {r.GetAvailablePlacesCount()} из {r.Type}");
+                    }
+                    totalFreeRooms += freeRooms.Count;
+                }
+                else
+                {
+                    sb.AppendLine("   Свободных комнат нет");
+                }
+                sb.AppendLine();
+            }
+
+            sb.AppendLine($"Итого свободных комнат: {totalFreeRooms}");
+            return sb.ToString();
+        }
+
+        public string GenerateDormResidentsReport(int dormitoryNumber)
+        {
+            var dorm = DormitoryRegistry.GetDormitoryByNumber(dormitoryNumber);
+            if (dorm == null)
+            {
+                return $"Общежитие №{dormitoryNumber} не найдено.";
+            }
+
+            var sb = new StringBuilder();
+            sb.AppendLine($"ОТЧЁТ: Список проживающих в общежитии №{dormitoryNumber}");
+            sb.AppendLine($"Адрес: {dorm.Address}");
+            sb.AppendLine($"Дата: {DateTime.Now:dd.MM.yyyy}");
+            sb.AppendLine();
+
+            var rooms = dorm.GetAllRooms().OrderBy(r => r.Number).ToList();
+            int totalOccupants = 0;
+
+            foreach (var room in rooms)
             {
                 var occupants = room.GetAllOccupants();
-                report.AppendLine($"Комната {room.Number} ({room.Type}-местная, этаж {room.Floor})");
-                report.AppendLine($"   Проживает: {occupants.Count}/{room.Type}");
-
                 if (occupants.Any())
                 {
-                    report.AppendLine($"   Жильцы: {string.Join(", ", occupants.Select(o => o.FullName))}");
+                    sb.AppendLine($"Комната №{room.Number} (этаж {room.Floor}) — проживает: {occupants.Count}");
+                    foreach (var occ in occupants.OrderBy(o => o.FullName))
+                    {
+                        sb.AppendLine($"   - {occ.FullName} ({occ.GetAge()} лет, тип: {occ.GetOccupantType()})");
+                        totalOccupants++;
+                    }
                 }
             }
 
-            return report.ToString();
+            if (totalOccupants == 0)
+            {
+                sb.AppendLine("Проживающих нет.");
+            }
+
+            sb.AppendLine();
+            sb.AppendLine($"ИТОГО: проживающих — {totalOccupants}");
+            return sb.ToString();
         }
     }
 }

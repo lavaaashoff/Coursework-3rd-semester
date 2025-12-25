@@ -97,6 +97,8 @@ namespace CouseWork3Semester.Services
 
         public IEmployee GetCurrentEmployee() => CurrentEmployee;
 
+
+
         // Методы из UML
         public void RegisterOccupant(IRoomOccupant occupant, IRoom room, IDocument document)
         {
@@ -200,26 +202,26 @@ namespace CouseWork3Semester.Services
                     }
                     throw new ArgumentException("Для отчёта 'settlement' требуются параметры 'startDate' и 'endDate'.");
 
-                case "payment":
-                case "оплата":
+                case "free-rooms":
+                case "свободные-комнаты":
+                    IDormitory dorm = null;
                     if (parameters != null &&
-                        parameters.TryGetValue("occupant", out var occObj) &&
-                        parameters.TryGetValue("period", out var periodObj) &&
-                        occObj is IRoomOccupant occ && periodObj is DateTime period)
+                        parameters.TryGetValue("dormitoryNumber", out var dnObj) &&
+                        dnObj is int dormNumber && dormNumber > 0)
                     {
-                        return ReportService.GeneratePaymentReport(occ, period);
+                        dorm = DormitoryRegistry.GetDormitoryByNumber(dormNumber);
                     }
-                    throw new ArgumentException("Для отчёта 'payment' требуются параметры 'occupant' и 'period'.");
+                    return ReportService.GenerateFreeRoomsReport(dorm);
 
-                case "inventory":
-                case "инвентарь":
+                case "residents-in-dorm":
+                case "проживающие":
                     if (parameters != null &&
-                        parameters.TryGetValue("dormitory", out var dormObj) &&
-                        dormObj is IDormitory dormitory)
+                        parameters.TryGetValue("dormitoryNumber", out var dnObj2) &&
+                        dnObj2 is int dormNumber2 && dormNumber2 > 0)
                     {
-                        return ReportService.GenerateInventoryReport(dormitory);
+                        return ReportService.GenerateDormResidentsReport(dormNumber2);
                     }
-                    throw new ArgumentException("Для отчёта 'inventory' требуется параметр 'dormitory'.");
+                    throw new ArgumentException("Для отчёта 'residents-in-dorm' требуется параметр 'dormitoryNumber'.");
 
                 default:
                     throw new NotSupportedException($"Неизвестный тип отчёта: {reportType}");
