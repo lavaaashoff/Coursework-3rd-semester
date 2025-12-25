@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.IO;
+using System;
 using System.Windows;
 using CouseWork3Semester.Enums;
 using CouseWork3Semester.Interfaces;
@@ -15,7 +17,8 @@ namespace CouseWork3Semester
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
-            Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
+
+            Current.ShutdownMode = ShutdownMode.OnExplicitShutdown;
 
             var employees = new List<IEmployee>
             {
@@ -24,59 +27,76 @@ namespace CouseWork3Semester
                 new Employee("adm", "com", "Vital Suhomlinvo", UserRole.Administrator)
             };
             var authManager = new AuthManager(employees);
-
             var permissionManager = new PermissionManager();
-            var dormitoryRegistry = new DormitoryRegistry();
-            var occupantRegistry = new OccupantRegistry();
-            var passportValidator = new PassportValidator();
-            var documentRegistry = new DocumentRegistry();
-            var documentValidator = new DocumentValidator();
-            var documentOccupantService = new DocumentOccupantService(documentRegistry, occupantRegistry, documentValidator);
 
-            var inventoryRegistry = new InventoryRegistry();
-
-            var accountingSystem = new AccountingSystem(
-                dormitoryRegistry,
-                occupantRegistry,
-                settlementEvictionService: new SettlementEvictionService(),
-                reportService: new ReportService(dormitoryRegistry, occupantRegistry),
-                searchService: new SearchService(dormitoryRegistry, occupantRegistry),
-                authManager,
-                permissionManager,
-                documentOccupantService,
-                passportValidator,
-                documentValidator,
-                currentEmployee: null,
-                documentRegistry: documentRegistry,
-                inventoryRegistry: inventoryRegistry
+            var storagePath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                "CouseWork3Semester",
+                "state.json"
             );
+            var storage = new JsonStorageService(storagePath);
+
+            var passportValidator = new PassportValidator();
+            var documentValidator = new DocumentValidator();
 
             var loginView = new LoginView();
-            Application.Current.MainWindow = loginView;
 
             var loginPresenter = new LoginPresenter(authManager, loginView, employee =>
             {
+                DormitoryRegistry dormitoryRegistry;
+                OccupantRegistry occupantRegistry;
+                DocumentRegistry documentRegistry;
+                SettlementEvictionService settlementEvictionService;
+                InventoryRegistry inventoryRegistry;
+
+                if (storage.TryLoad(out var state) && state != null)
+                {
+                    dormitoryRegistry = state.DormitoryRegistry ?? new DormitoryRegistry();
+                    occupantRegistry = state.OccupantRegistry ?? new OccupantRegistry();
+                    documentRegistry = state.DocumentRegistry ?? new DocumentRegistry();
+                    settlementEvictionService = state.SettlementEvictionService ?? new SettlementEvictionService();
+                    inventoryRegistry = state.InventoryRegistry ?? new InventoryRegistry();
+                }
+                else
+                {
+                    dormitoryRegistry = new DormitoryRegistry();
+                    occupantRegistry = new OccupantRegistry();
+                    documentRegistry = new DocumentRegistry();
+                    settlementEvictionService = new SettlementEvictionService();
+                    inventoryRegistry = new InventoryRegistry();
+                }
+
+                var reportService = new ReportService(dormitoryRegistry, occupantRegistry);
+                var searchService = new SearchService(dormitoryRegistry, occupantRegistry);
+                var documentOccupantService = new DocumentOccupantService(documentRegistry, occupantRegistry, documentValidator);
+
                 var sysForUser = new AccountingSystem(
-                    accountingSystem.DormitoryRegistry,
-                    accountingSystem.OccupantRegistry,
-                    accountingSystem.SettlementEvictionService,
-                    accountingSystem.ReportService,
-                    accountingSystem.SearchService,
-                    accountingSystem.AuthManager,
-                    accountingSystem.PermissionManager,
-                    accountingSystem.DocumentOccupantService,
-                    accountingSystem.PassportValidator,
-                    accountingSystem.DocumentValidator,
+                    dormitoryRegistry,
+                    occupantRegistry,
+                    settlementEvictionService: settlementEvictionService,
+                    reportService: reportService,
+                    searchService: searchService,
+                    authManager,
+                    permissionManager,
+                    documentOccupantService,
+                    passportValidator,
+                    documentValidator,
                     currentEmployee: employee,
-                    documentRegistry: accountingSystem.DocumentRegistry,
-                    inventoryRegistry: accountingSystem.InventoryRegistry
+                    documentRegistry: documentRegistry,
+                    inventoryRegistry: inventoryRegistry
                 );
 
                 var dashboardView = new DashboardView();
-                var dashboardPresenter = new DashboardPresenter(sysForUser);
+                var dashboardPresenter = new DashboardPresenter(sysForUser, storage);
                 dashboardPresenter.InitializeDashboard(dashboardView);
+
                 Application.Current.MainWindow = dashboardView;
+                Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
+
                 dashboardView.Show();
+                dashboardView.Activate();
+
+                loginView.Close();
             });
 
             loginView.Show();

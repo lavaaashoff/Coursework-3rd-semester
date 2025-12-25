@@ -2,17 +2,20 @@
 using System.Windows;
 using CouseWork3Semester.Interfaces;
 using CouseWork3Semester.Views;
+using CouseWork3Semester.Services;
 
 namespace CouseWork3Semester.Presenters
 {
     public class DashboardPresenter
     {
         private readonly IAccountingSystem _sys;
+        private readonly IStorageService _storage;
         private DashboardView _view;
 
-        public DashboardPresenter(IAccountingSystem accountingSystem)
+        public DashboardPresenter(IAccountingSystem accountingSystem, IStorageService storage)
         {
             _sys = accountingSystem ?? throw new ArgumentNullException(nameof(accountingSystem));
+            _storage = storage ?? throw new ArgumentNullException(nameof(storage));
         }
 
         public void InitializeDashboard(DashboardView view)
@@ -103,6 +106,8 @@ namespace CouseWork3Semester.Presenters
             {
                 try
                 {
+                    _storage.Save(_sys);
+
                     _sys.AuthManager.Logout();
 
                     var loginView = new LoginView();
@@ -127,7 +132,7 @@ namespace CouseWork3Semester.Presenters
                         );
 
                         var dash = new DashboardView();
-                        var dashPresenter = new DashboardPresenter(newSys);
+                        var dashPresenter = new DashboardPresenter(newSys, _storage);
                         dashPresenter.InitializeDashboard(dash);
                         Application.Current.MainWindow = dash;
                         dash.Show();

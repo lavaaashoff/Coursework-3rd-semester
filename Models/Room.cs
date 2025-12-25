@@ -2,9 +2,11 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Newtonsoft.Json;
 
 namespace CouseWork3Semester.Models
 {
+    [JsonObject(MemberSerialization.OptIn)]
     public class Room : IRoom
     {
         public int Number { get; private set; }
@@ -12,6 +14,7 @@ namespace CouseWork3Semester.Models
         public int Type { get; private set; }
         public int Floor { get; private set; }
 
+        [JsonProperty]
         private List<IRoomOccupant> occupants;
 
         public Room(int number, double area, int type, int floor)
@@ -22,7 +25,6 @@ namespace CouseWork3Semester.Models
             Floor = floor;
             occupants = new List<IRoomOccupant>();
         }
-
 
         public bool AddOccupant(IRoomOccupant occupant)
         {

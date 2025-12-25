@@ -1,12 +1,14 @@
-﻿using System;
+﻿using CouseWork3Semester.Interfaces;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using CouseWork3Semester.Interfaces;
 
 namespace CouseWork3Semester.Registries
 {
     public class InventoryRegistry : IInventoryRegistry
     {
+        [JsonProperty]
         private readonly Dictionary<Guid, IInventoryItem> _items = new();
 
         public void AddItem(IInventoryItem item)
