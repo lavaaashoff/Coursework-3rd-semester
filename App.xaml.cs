@@ -31,15 +31,18 @@ namespace CouseWork3Semester
             var occupantRegistry = new OccupantRegistry();
             var passportValidator = new PassportValidator();
             var documentRegistry = new DocumentRegistry();
-            var documentValidator = new DocumentValidator(); // ваша реализация
+            var documentValidator = new DocumentValidator();
             var documentOccupantService = new DocumentOccupantService(documentRegistry, occupantRegistry, documentValidator);
 
-            // Собираем AccountingSystem 
+            // Новый реестр инвентаря
+            var inventoryRegistry = new InventoryRegistry();
+
+            // Собираем AccountingSystem (без текущего сотрудника)
             var accountingSystem = new AccountingSystem(
                 dormitoryRegistry,
                 occupantRegistry,
-                settlementEvictionService: new SettlementEvictionService(), // если есть реальная реализация/инициализация
-                paymentService: new PaymentService(),                        // при необходимости
+                settlementEvictionService: new SettlementEvictionService(),
+                paymentService: new PaymentService(),
                 reportService: new ReportService(dormitoryRegistry, occupantRegistry, new PaymentService()),
                 searchService: new SearchService(dormitoryRegistry, occupantRegistry),
                 authManager,
@@ -48,7 +51,8 @@ namespace CouseWork3Semester
                 passportValidator,
                 documentValidator,
                 currentEmployee: null,
-                documentRegistry: documentRegistry
+                documentRegistry: documentRegistry,
+                inventoryRegistry: inventoryRegistry
             );
 
             // Login
@@ -57,7 +61,7 @@ namespace CouseWork3Semester
 
             var loginPresenter = new LoginPresenter(authManager, loginView, employee =>
             {
-                // Обновляем текущего сотрудника через пересборку (или добавьте сеттер, если хотите)
+                // Пересобираем систему с текущим сотрудником
                 var sysForUser = new AccountingSystem(
                     accountingSystem.DormitoryRegistry,
                     accountingSystem.OccupantRegistry,
@@ -70,8 +74,9 @@ namespace CouseWork3Semester
                     accountingSystem.DocumentOccupantService,
                     accountingSystem.PassportValidator,
                     accountingSystem.DocumentValidator,
-                    employee,
-                    accountingSystem.DocumentRegistry
+                    currentEmployee: employee,
+                    documentRegistry: accountingSystem.DocumentRegistry,
+                    inventoryRegistry: accountingSystem.InventoryRegistry
                 );
 
                 var dashboardView = new DashboardView();

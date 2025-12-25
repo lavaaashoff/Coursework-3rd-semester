@@ -76,7 +76,7 @@ namespace CouseWork3Semester.Presenters
                 v.Show();
             };
 
-            // Новая навигация: Менеджер заселений (отдельное окно)
+            // Новая навигация: Менеджер заселений
             _view.ManageSettlementsButton.Click += (s, e) =>
             {
                 var v = new SettlementsView();
@@ -84,7 +84,7 @@ namespace CouseWork3Semester.Presenters
                 v.Show();
             };
 
-            // Обновлённая навигация: Менеджер выселений (отдельное окно)
+            // Новая навигация: Менеджер выселений
             _view.ManageEvictionsButton.Click += (s, e) =>
             {
                 var v = new EvictionsView();
@@ -92,6 +92,13 @@ namespace CouseWork3Semester.Presenters
                 v.Show();
             };
 
+            // Менеджер инвентаря
+            _view.ManageInventoryButton.Click += (s, e) =>
+            {
+                var v = new InventoryView();
+                var p = new InventoryPresenter(v, _sys);
+                v.Show();
+            };
 
             // Logout
             _view.LogoutButton.Click += (s, e) =>
@@ -118,12 +125,10 @@ namespace CouseWork3Semester.Presenters
                             _sys.DocumentOccupantService,
                             _sys.PassportValidator,
                             _sys.DocumentValidator,
-                            newEmployee
-                        )
-                        {
-                            // Если ниже добавите DocumentRegistry как свойство — присвойте его здесь
-                            DocumentRegistry = _sys.DocumentRegistry
-                        };
+                            currentEmployee: newEmployee,
+                            documentRegistry: _sys.DocumentRegistry,
+                            inventoryRegistry: _sys.InventoryRegistry
+                        );
 
                         var dash = new DashboardView();
                         var dashPresenter = new DashboardPresenter(newSys);

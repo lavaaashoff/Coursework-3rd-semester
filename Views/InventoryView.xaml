@@ -1,0 +1,71 @@
+﻿<Window x:Class="CouseWork3Semester.Views.InventoryView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Inventory Manager" Height="640" Width="980"
+        WindowStartupLocation="CenterScreen">
+    <Grid Margin="10">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="3*"/>
+            <ColumnDefinition Width="2*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <GroupBox Header="Room selection" Grid.ColumnSpan="2" Margin="0,0,0,10">
+            <StackPanel Orientation="Horizontal" Margin="10">
+                <StackPanel Width="280" Margin="0,0,10,0">
+                    <TextBlock Text="Dormitory"/>
+                    <ComboBox x:Name="DormitoryCombo" DisplayMemberPath="Display" SelectedValuePath="Number" Height="28"/>
+                </StackPanel>
+                <StackPanel Width="280" Margin="0,0,10,0">
+                    <TextBlock Text="Room"/>
+                    <ComboBox x:Name="RoomCombo" DisplayMemberPath="Display" SelectedValuePath="Number" Height="28"/>
+                </StackPanel>
+                <Button x:Name="RefreshButton" Content="Refresh" Width="120"/>
+            </StackPanel>
+        </GroupBox>
+
+        <GroupBox Header="Inventory items" Grid.Row="1" Grid.Column="0" Margin="0,0,10,0">
+            <Grid>
+                <DataGrid x:Name="InventoryGrid"
+                          AutoGenerateColumns="False"
+                          IsReadOnly="True"
+                          SelectionMode="Single"
+                          Margin="5">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="220"/>
+                        <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="220"/>
+                        <DataGridTextColumn Header="Quantity" Binding="{Binding Quantity}" Width="120"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </GroupBox>
+
+        <GroupBox Header="Manage inventory" Grid.Row="1" Grid.Column="1">
+            <StackPanel Margin="10">
+                <TextBlock Text="Name"/>
+                <TextBox x:Name="ItemNameTextBox" Margin="0,0,0,6"/>
+
+                <TextBlock Text="Quantity"/>
+                <TextBox x:Name="ItemQuantityTextBox" Margin="0,0,0,12"/>
+
+                <StackPanel Orientation="Horizontal">
+                    <Button x:Name="AddItemButton" Content="Add item" Width="120" Margin="0,0,10,0"/>
+                    <Button x:Name="UpdateItemButton" Content="Update selected" Width="140" Margin="0,0,10,0"/>
+                    <Button x:Name="RemoveItemButton" Content="Remove selected" Width="140"/>
+                </StackPanel>
+
+                <TextBlock x:Name="ManageHintText" Foreground="Gray" Margin="0,10,0,0"/>
+            </StackPanel>
+        </GroupBox>
+
+        <StatusBar Grid.Row="2" Grid.ColumnSpan="2" Margin="0,10,0,0">
+            <StatusBarItem>
+                <TextBlock x:Name="StatusText" Text="Ready"/>
+            </StatusBarItem>
+        </StatusBar>
+    </Grid>
+</Window>

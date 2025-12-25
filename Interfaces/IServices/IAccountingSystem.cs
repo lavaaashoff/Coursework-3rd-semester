@@ -19,9 +19,10 @@ namespace CouseWork3Semester.Interfaces
         IDocumentOccupantService DocumentOccupantService { get; }
         IPassportValidator PassportValidator { get; }
         IDocumentValidator DocumentValidator { get; }
-
-        // ДОБАВЛЕНО:
         IDocumentRegistry DocumentRegistry { get; }
+
+        // ДОБАВЛЕНО: реестр инвентаря
+        IInventoryRegistry InventoryRegistry { get; }
 
         void RegisterOccupant(IRoomOccupant occupant, IRoom room, IDocument document);
         void EvictOccupant(IRoomOccupant occupant, string reason);

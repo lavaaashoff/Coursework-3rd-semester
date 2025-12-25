@@ -1,5 +1,6 @@
 ﻿using CouseWork3Semester.Interfaces;
 using CouseWork3Semester.Models;
+using CouseWork3Semester.Registries;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,7 +22,10 @@ namespace CouseWork3Semester.Services
         public IPassportValidator PassportValidator { get; }
         public IDocumentValidator DocumentValidator { get; }
         public IDocumentRegistry DocumentRegistry { get; set; }
+        // ДОБАВЛЕНО: реестр инвентаря
+        public IInventoryRegistry InventoryRegistry { get; private set; }
 
+        // Базовый конструктор (без currentEmployee), требует inventoryRegistry
         public AccountingSystem(
             IDormitoryRegistry dormitoryRegistry,
             IOccupantRegistry occupantRegistry,
@@ -34,8 +38,9 @@ namespace CouseWork3Semester.Services
             IDocumentOccupantService documentOccupantService,
             IPassportValidator passportValidator,
             IDocumentValidator documentValidator,
-            IEmployee currentEmployee = null,
-            IDocumentRegistry documentRegistry = null)
+            IDocumentRegistry documentRegistry,
+            IInventoryRegistry inventoryRegistry
+        )
         {
             DormitoryRegistry = dormitoryRegistry ?? throw new ArgumentNullException(nameof(dormitoryRegistry));
             OccupantRegistry = occupantRegistry ?? throw new ArgumentNullException(nameof(occupantRegistry));
@@ -48,9 +53,49 @@ namespace CouseWork3Semester.Services
             DocumentOccupantService = documentOccupantService ?? throw new ArgumentNullException(nameof(documentOccupantService));
             PassportValidator = passportValidator ?? throw new ArgumentNullException(nameof(passportValidator));
             DocumentValidator = documentValidator ?? throw new ArgumentNullException(nameof(documentValidator));
-            CurrentEmployee = currentEmployee;
-            DocumentRegistry = documentRegistry; // может быть задан позже
+            DocumentRegistry = documentRegistry ?? throw new ArgumentNullException(nameof(documentRegistry));
+            InventoryRegistry = inventoryRegistry ?? new InventoryRegistry();
+
+            CurrentEmployee = null;
         }
+
+        // Перегруженный конструктор — как в твоём вызове: с currentEmployee и далее documentRegistry, inventoryRegistry
+        public AccountingSystem(
+            IDormitoryRegistry dormitoryRegistry,
+            IOccupantRegistry occupantRegistry,
+            ISettlementEvictionService settlementEvictionService,
+            IPaymentService paymentService,
+            IReportService reportService,
+            ISearchService searchService,
+            IAuthManager authManager,
+            IPermissionManager permissionManager,
+            IDocumentOccupantService documentOccupantService,
+            IPassportValidator passportValidator,
+            IDocumentValidator documentValidator,
+            IEmployee currentEmployee,
+            IDocumentRegistry documentRegistry,
+            IInventoryRegistry inventoryRegistry
+        )
+            : this(
+                dormitoryRegistry,
+                occupantRegistry,
+                settlementEvictionService,
+                paymentService,
+                reportService,
+                searchService,
+                authManager,
+                permissionManager,
+                documentOccupantService,
+                passportValidator,
+                documentValidator,
+                documentRegistry,
+                inventoryRegistry
+            )
+        {
+            CurrentEmployee = currentEmployee;
+        }
+
+        public IEmployee GetCurrentEmployee() => CurrentEmployee;
 
         // Методы из UML
         public void RegisterOccupant(IRoomOccupant occupant, IRoom room, IDocument document)
@@ -212,9 +257,6 @@ namespace CouseWork3Semester.Services
                     return null;
             }
         }
-
-        public IEmployee GetCurrentEmployee() => CurrentEmployee;
-
         // Вспомогательный метод: обновить текущего сотрудника (через интерфейс IEmployee)
         public void SetCurrentEmployee(IEmployee employee)
         {
