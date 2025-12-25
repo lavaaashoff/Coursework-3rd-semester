@@ -1,8 +1,9 @@
-﻿using System;
+﻿using CouseWork3Semester.Interfaces;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using CouseWork3Semester.Interfaces;
 
 namespace CouseWork3Semester.Models
 {
@@ -10,14 +11,16 @@ namespace CouseWork3Semester.Models
     {
         private const int MAX_OCCUPANTS_PER_EVICTION = 10;
 
-        public Guid Id { get; private set; }
-        public DateTime EvictionDate { get; private set; }
-        public string Reason { get; private set; }
-        public IRoom Room { get; private set; }
-        public List<IRoomOccupant> Occupants { get; private set; }
-        public ISettlement RelatedSettlement { get; private set; }
+        [JsonProperty] public Guid Id { get; private set; }
+        [JsonProperty] public DateTime EvictionDate { get; private set; }
+        [JsonProperty] public string Reason { get; private set; }
+        [JsonProperty] public IRoom Room { get; private set; }
+        [JsonProperty] public List<IRoomOccupant> Occupants { get; private set; }
+        [JsonProperty] public ISettlement RelatedSettlement { get; private set; }
 
         private DateTime? _executionDate;
+
+
 
         public Eviction()
         {

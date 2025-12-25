@@ -3,19 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using CouseWork3Semester.Interfaces;
+using Newtonsoft.Json;
 
 namespace CouseWork3Semester.Models
 {
+    [JsonObject(MemberSerialization.OptIn)]
     public class Settlement : ISettlement
     {
         private const int MAX_OCCUPANTS_PER_SETTLEMENT = 10;
         private const int MIN_OCCUPANTS_PER_SETTLEMENT = 1;
 
-        public Guid Id { get; private set; }
-        public DateTime SettlementDate { get; private set; }
-        public List<IRoomOccupant> Occupants { get; private set; }
-        public IRoom Room { get; private set; }
-        public IDocument Document { get; private set; }
+        [JsonProperty] public Guid Id { get; private set; }
+        [JsonProperty] public DateTime SettlementDate { get; private set; }
+        [JsonProperty] public List<IRoomOccupant> Occupants { get; private set; }
+        [JsonProperty] public IRoom Room { get; private set; }
+        [JsonProperty] public IDocument Document { get; private set; }
 
         private DateTime? _completionDate;
 
@@ -74,20 +76,12 @@ namespace CouseWork3Semester.Models
             if (Occupants.Any())
             {
                 info.AppendLine("Жильцы:");
-                foreach (var occupant in Occupants)
+                foreach (var o in Occupants)
                 {
-                    info.AppendLine($"  - {occupant.FullName} (возраст: {occupant.GetAge()}, тип: {occupant.GetOccupantType()})");
+                    info.AppendLine($"- {o.FullName} ({o.GetOccupantType()}), {o.BirthDate:dd.MM.yyyy}");
                 }
             }
 
-            info.AppendLine($"Свободных мест в комнате: {Room?.GetAvailablePlacesCount() ?? 0}");
-
-            if (_completionDate.HasValue)
-            {
-                info.AppendLine($"Дата фиксации выполнения: {_completionDate.Value:dd.MM.yyyy HH:mm}");
-            }
-
-            info.AppendLine("==============================");
             return info.ToString();
         }
     }

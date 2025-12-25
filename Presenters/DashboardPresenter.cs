@@ -1,9 +1,12 @@
-﻿using CouseWork3Semester.Interfaces;
-using CouseWork3Semester.Registries;
-using CouseWork3Semester.Services;
-using CouseWork3Semester.Views;
-using System;
+﻿using System;
+using System.Linq; // ДОБАВЛЕНО
 using System.Windows;
+using CouseWork3Semester.Interfaces;
+using CouseWork3Semester.Views;
+using CouseWork3Semester.Services;
+using CouseWork3Semester.Registries;
+using CouseWork3Semester.Models;
+using System.Collections.Generic;
 
 namespace CouseWork3Semester.Presenters
 {
@@ -22,28 +25,21 @@ namespace CouseWork3Semester.Presenters
         public void InitializeDashboard(DashboardView view)
         {
             _view = view ?? throw new ArgumentNullException(nameof(view));
-
             var employee = _sys.GetCurrentEmployee();
             var pm = _sys.PermissionManager;
 
             _view.ManageDormitoriesButton.Visibility =
                 pm.CanRolePerformAction(employee.Role, "ManageDormitories") ? Visibility.Visible : Visibility.Collapsed;
-
             _view.ManageRoomsButton.Visibility =
                 pm.CanRolePerformAction(employee.Role, "ManageRooms") ? Visibility.Visible : Visibility.Collapsed;
-
             _view.ManageOccupantsButton.Visibility =
                 pm.CanRolePerformAction(employee.Role, "ManageOccupants") ? Visibility.Visible : Visibility.Collapsed;
-
             _view.ManageDocumentsButton.Visibility =
                 pm.CanRolePerformAction(employee.Role, "ManageDocuments") ? Visibility.Visible : Visibility.Collapsed;
-
             _view.ManageEvictionsButton.Visibility =
                 pm.CanRolePerformAction(employee.Role, "ManageEvictions") ? Visibility.Visible : Visibility.Collapsed;
-
             _view.ManageInventoryButton.Visibility =
                 pm.CanRolePerformAction(employee.Role, "ManageInventory") ? Visibility.Visible : Visibility.Collapsed;
-
             _view.ReportsButton.Visibility =
                 pm.CanRolePerformAction(employee.Role, "GenerateReports") ? Visibility.Visible : Visibility.Collapsed;
 
@@ -107,46 +103,50 @@ namespace CouseWork3Semester.Presenters
             {
                 try
                 {
-                    DebugLogger.Write("DashboardPresenter: Logout clicked. Saving state...");
                     _storage.Save(_sys);
                     _sys.AuthManager.Logout();
 
                     var loginView = new LoginView();
                     Application.Current.MainWindow = loginView;
-                    Application.Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
 
                     var loginPresenter = new LoginPresenter(_sys.AuthManager, loginView, newEmployee =>
                     {
-                        DebugLogger.Write($"DashboardPresenter: Logout -> new login success user={newEmployee?.Login}");
-
                         DormitoryRegistry dormitoryRegistry;
                         OccupantRegistry occupantRegistry;
                         DocumentRegistry documentRegistry;
                         SettlementEvictionService settlementEvictionService;
                         InventoryRegistry inventoryRegistry;
+                        List<DocumentOccupantLink> docLinks;
 
-                        if (_storage.TryLoad(out var state) && state != null)
+                        if ((_storage as JsonStorageService)?.TryLoad(out var state) == true && state != null)
                         {
-                            DebugLogger.Write("State loaded after logout");
                             dormitoryRegistry = state.DormitoryRegistry ?? new DormitoryRegistry();
                             occupantRegistry = state.OccupantRegistry ?? new OccupantRegistry();
                             documentRegistry = state.DocumentRegistry ?? new DocumentRegistry();
                             settlementEvictionService = state.SettlementEvictionService ?? new SettlementEvictionService();
                             inventoryRegistry = state.InventoryRegistry ?? new InventoryRegistry();
+                            docLinks = state.DocumentLinks ?? new List<DocumentOccupantLink>();
                         }
                         else
                         {
-                            DebugLogger.Write("No state after logout, using empty registries");
                             dormitoryRegistry = _sys.DormitoryRegistry as DormitoryRegistry ?? new DormitoryRegistry();
                             occupantRegistry = _sys.OccupantRegistry as OccupantRegistry ?? new OccupantRegistry();
                             documentRegistry = _sys.DocumentRegistry as DocumentRegistry ?? new DocumentRegistry();
                             settlementEvictionService = _sys.SettlementEvictionService as SettlementEvictionService ?? new SettlementEvictionService();
                             inventoryRegistry = _sys.InventoryRegistry as InventoryRegistry ?? new InventoryRegistry();
+                            docLinks = _sys.DocumentOccupantService?.GetAllLinks()?.OfType<DocumentOccupantLink>()?.ToList() ?? new List<DocumentOccupantLink>();
                         }
 
                         var reportService = new ReportService(dormitoryRegistry, occupantRegistry);
                         var searchService = new SearchService(dormitoryRegistry, occupantRegistry);
-                        var documentOccupantService = new DocumentOccupantService(documentRegistry, occupantRegistry, _sys.DocumentValidator);
+
+                        // ИСПРАВЛЕНО: приводим список к интерфейсному типу
+                        var documentOccupantService = new DocumentOccupantService(
+                            documentRegistry,
+                            occupantRegistry,
+                            _sys.DocumentValidator,
+                            docLinks.Cast<IDocumentOccupantLink>().ToList()
+                        );
 
                         var newSys = new Services.AccountingSystem(
                             dormitoryRegistry,
@@ -167,13 +167,8 @@ namespace CouseWork3Semester.Presenters
                         var dash = new DashboardView();
                         var dashPresenter = new DashboardPresenter(newSys, _storage);
                         dashPresenter.InitializeDashboard(dash);
-
                         Application.Current.MainWindow = dash;
                         dash.Show();
-                        dash.Activate();
-
-                        loginView.Close();
-                        DebugLogger.Write("DashboardPresenter: switched to new dashboard after logout");
                     });
 
                     loginView.Show();
@@ -181,7 +176,6 @@ namespace CouseWork3Semester.Presenters
                 }
                 catch (Exception ex)
                 {
-                    DebugLogger.Write("DashboardPresenter: Logout failed", ex);
                     MessageBox.Show($"Logout failed: {ex.Message}", "Error",
                         MessageBoxButton.OK, MessageBoxImage.Error);
                 }
