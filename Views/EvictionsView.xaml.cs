@@ -2,9 +2,9 @@
 
 namespace CouseWork3Semester.Views
 {
-    public partial class SettlementEvictionsView : Window
+    public partial class EvictionsView : Window
     {
-        public SettlementEvictionsView()
+        public EvictionsView()
         {
             InitializeComponent();
         }

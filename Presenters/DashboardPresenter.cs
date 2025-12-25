@@ -76,12 +76,22 @@ namespace CouseWork3Semester.Presenters
                 v.Show();
             };
 
-            _view.ManageEvictionsButton.Click += (s, e) =>
+            // Новая навигация: Менеджер заселений (отдельное окно)
+            _view.ManageSettlementsButton.Click += (s, e) =>
             {
-                var v = new SettlementEvictionsView();
-                var p = new SettlementEvictionsPresenter(v, _sys);
+                var v = new SettlementsView();
+                var p = new SettlementsPresenter(v, _sys);
                 v.Show();
             };
+
+            // Обновлённая навигация: Менеджер выселений (отдельное окно)
+            _view.ManageEvictionsButton.Click += (s, e) =>
+            {
+                var v = new EvictionsView();
+                var p = new EvictionsPresenter(v, _sys);
+                v.Show();
+            };
+
 
             // Logout
             _view.LogoutButton.Click += (s, e) =>
