@@ -10,16 +10,13 @@ namespace CouseWork3Semester.Services
     {
         public IDormitoryRegistry DormitoryRegistry { get; }
         public IOccupantRegistry OccupantRegistry { get; }
-        public IPaymentService PaymentService { get; }
 
         public ReportService(
             IDormitoryRegistry dormitoryRegistry,
-            IOccupantRegistry occupantRegistry,
-            IPaymentService paymentService)
+            IOccupantRegistry occupantRegistry)
         {
             DormitoryRegistry = dormitoryRegistry ?? throw new ArgumentNullException(nameof(dormitoryRegistry));
             OccupantRegistry = occupantRegistry ?? throw new ArgumentNullException(nameof(occupantRegistry));
-            PaymentService = paymentService ?? throw new ArgumentNullException(nameof(paymentService));
         }
 
         public string GenerateDormitoryReport()

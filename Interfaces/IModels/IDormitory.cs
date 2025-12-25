@@ -6,17 +6,14 @@ namespace CouseWork3Semester.Interfaces
 {
     public interface IDormitory
     {
-        // Свойства
         int Number { get; }
         string Address { get; }
         string PhotoPath { get; }
 
-        // Основные методы
         void AddRoom(IRoom room);
         bool RemoveRoom(int roomNumber);
         bool UpdatePhoto(string photoPath);
 
-        // Методы получения информации
         int GetTotalPlacesCount();
         int GetAvailablePlacesCount();
         double GetOccupancyPercentage();
@@ -24,7 +21,6 @@ namespace CouseWork3Semester.Interfaces
 
         int GetTotalOccupantsCount();
 
-        // Дополнительные методы (опционально)
         List<IRoom> GetAllRooms();
         int GetOccupiedPlacesCount();
     }

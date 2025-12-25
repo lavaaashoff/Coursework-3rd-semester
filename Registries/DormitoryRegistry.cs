@@ -74,38 +74,7 @@ namespace CouseWork3Semester.Registries
             return new List<IDormitory>(Dormitories.OrderBy(d => d.Number));
         }
 
-        // Дополнительные методы (не из интерфейса, но полезные)
 
-        public List<IDormitory> GetDormitoriesByAddress(string address)
-        {
-            if (string.IsNullOrWhiteSpace(address))
-                throw new ArgumentException("Address cannot be null or empty", nameof(address));
-
-            return Dormitories
-                .Where(d => d.Address.Contains(address, StringComparison.OrdinalIgnoreCase))
-                .OrderBy(d => d.Number)
-                .ToList();
-        }
-
-        public IDormitory GetDormitoryWithHighestOccupancy()
-        {
-            if (Dormitories.Count == 0)
-                return null;
-
-            return Dormitories
-                .OrderByDescending(d => d.GetOccupancyPercentage())
-                .First();
-        }
-
-        public IDormitory GetDormitoryWithLowestOccupancy()
-        {
-            if (Dormitories.Count == 0)
-                return null;
-
-            return Dormitories
-                .OrderBy(d => d.GetOccupancyPercentage())
-                .First();
-        }
 
         public int GetTotalPlacesCount()
         {
@@ -138,41 +107,8 @@ namespace CouseWork3Semester.Registries
             return Math.Round((double)occupiedPlaces / totalPlaces * 100, 2);
         }
 
-        public List<IDormitory> GetDormitoriesWithAvailablePlaces()
-        {
-            return Dormitories
-                .Where(d => d.GetAvailablePlacesCount() > 0)
-                .OrderBy(d => d.Number)
-                .ToList();
-        }
 
-        public List<IDormitory> GetFullDormitories()
-        {
-            return Dormitories
-                .Where(d => d.GetAvailablePlacesCount() == 0)
-                .OrderBy(d => d.Number)
-                .ToList();
-        }
 
-        // Статистические методы
-
-        public Dictionary<int, int> GetPlacesDistributionByDormitory()
-        {
-            return Dormitories
-                .ToDictionary(
-                    d => d.Number,
-                    d => d.GetTotalPlacesCount()
-                );
-        }
-
-        public Dictionary<int, int> GetOccupancyDistributionByDormitory()
-        {
-            return Dormitories
-                .ToDictionary(
-                    d => d.Number,
-                    d => d.GetOccupiedPlacesCount()
-                );
-        }
 
         // Вспомогательные методы
 
@@ -188,59 +124,6 @@ namespace CouseWork3Semester.Registries
             {
                 throw new ArgumentException($"Duplicate dormitory numbers found: {string.Join(", ", duplicateNumbers)}");
             }
-        }
-
-        public void Clear()
-        {
-            // Проверяем, что все общежития пустые
-            foreach (var dormitory in Dormitories)
-            {
-                if (dormitory.GetTotalOccupantsCount() > 0)
-                {
-                    throw new InvalidOperationException($"Cannot clear registry because dormitory {dormitory.Number} has occupants");
-                }
-            }
-
-            Dormitories.Clear();
-        }
-
-        // Переопределение стандартных методов
-
-        public override string ToString()
-        {
-            return $"Dormitory Registry: {Dormitories.Count} dormitories, " +
-                   $"{GetTotalPlacesCount()} total places, " +
-                   $"{GetTotalOccupiedPlacesCount()} occupied places, " +
-                   $"{GetOverallOccupancyPercentage():F2}% occupancy";
-        }
-
-        public string GetDetailedReport()
-        {
-            var report = new System.Text.StringBuilder();
-
-            report.AppendLine("DORMITORY REGISTRY DETAILED REPORT");
-            report.AppendLine("==================================");
-            report.AppendLine($"Total Dormitories: {Dormitories.Count}");
-            report.AppendLine($"Total Places: {GetTotalPlacesCount()}");
-            report.AppendLine($"Occupied Places: {GetTotalOccupiedPlacesCount()}");
-            report.AppendLine($"Available Places: {GetTotalAvailablePlacesCount()}");
-            report.AppendLine($"Total Occupants: {GetTotalOccupantsCount()}");
-            report.AppendLine($"Overall Occupancy: {GetOverallOccupancyPercentage():F2}%");
-            report.AppendLine();
-
-            foreach (var dormitory in GetAllDormitories())
-            {
-                report.AppendLine($"Dormitory #{dormitory.Number}");
-                report.AppendLine($"Address: {dormitory.Address}");
-                report.AppendLine($"Rooms: {dormitory.GetAllRooms().Count}");
-                report.AppendLine($"Places: {dormitory.GetTotalPlacesCount()} " +
-                                 $"(Occupied: {dormitory.GetOccupiedPlacesCount()}, " +
-                                 $"Available: {dormitory.GetAvailablePlacesCount()})");
-                report.AppendLine($"Occupancy: {dormitory.GetOccupancyPercentage():F2}%");
-                report.AppendLine();
-            }
-
-            return report.ToString();
         }
     }
 }

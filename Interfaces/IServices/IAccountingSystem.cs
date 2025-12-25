@@ -10,7 +10,6 @@ namespace CouseWork3Semester.Interfaces
         IDormitoryRegistry DormitoryRegistry { get; }
         IOccupantRegistry OccupantRegistry { get; }
         ISettlementEvictionService SettlementEvictionService { get; }
-        IPaymentService PaymentService { get; }
         IReportService ReportService { get; }
         ISearchService SearchService { get; }
         IEmployee CurrentEmployee { get; }
@@ -20,8 +19,6 @@ namespace CouseWork3Semester.Interfaces
         IPassportValidator PassportValidator { get; }
         IDocumentValidator DocumentValidator { get; }
         IDocumentRegistry DocumentRegistry { get; }
-
-        // ДОБАВЛЕНО: реестр инвентаря
         IInventoryRegistry InventoryRegistry { get; }
 
         void RegisterOccupant(IRoomOccupant occupant, IRoom room, IDocument document);

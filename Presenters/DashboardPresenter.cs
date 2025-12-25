@@ -124,7 +124,6 @@ namespace CouseWork3Semester.Presenters
                             _sys.DormitoryRegistry,
                             _sys.OccupantRegistry,
                             _sys.SettlementEvictionService,
-                            _sys.PaymentService,
                             _sys.ReportService,
                             _sys.SearchService,
                             _sys.AuthManager,

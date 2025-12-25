@@ -59,13 +59,6 @@ namespace CouseWork3Semester.Registries
                 .FirstOrDefault(d => d.Number.Equals(number, StringComparison.OrdinalIgnoreCase));
         }
 
-        // Метод из UML: Архивировать документ
-        // Делаем просто удалением, если архив не нужен
-        public void ArchiveDocument(Guid id)
-        {
-            RemoveDocument(id);
-        }
-
         // Дополнительные методы
 
         public List<IDocument> GetAllDocuments()
@@ -86,27 +79,6 @@ namespace CouseWork3Semester.Registries
         public int GetDocumentsCount()
         {
             return Documents.Count;
-        }
-
-        public bool UpdateDocumentComment(Guid documentId, string newComment)
-        {
-            var document = FindDocumentById(documentId);
-            if (document == null)
-                return false;
-
-            document.ChangeComment(newComment);
-            return true;
-        }
-
-        // Очистка реестра
-        public void Clear()
-        {
-            Documents.Clear();
-        }
-
-        public override string ToString()
-        {
-            return $"Document Registry: {Documents.Count} documents";
         }
     }
 }

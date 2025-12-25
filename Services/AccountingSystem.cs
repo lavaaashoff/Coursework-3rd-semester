@@ -12,7 +12,6 @@ namespace CouseWork3Semester.Services
         public IDormitoryRegistry DormitoryRegistry { get; }
         public IOccupantRegistry OccupantRegistry { get; }
         public ISettlementEvictionService SettlementEvictionService { get; }
-        public IPaymentService PaymentService { get; }
         public IReportService ReportService { get; }
         public ISearchService SearchService { get; }
         public IEmployee CurrentEmployee { get; private set; }
@@ -30,7 +29,6 @@ namespace CouseWork3Semester.Services
             IDormitoryRegistry dormitoryRegistry,
             IOccupantRegistry occupantRegistry,
             ISettlementEvictionService settlementEvictionService,
-            IPaymentService paymentService,
             IReportService reportService,
             ISearchService searchService,
             IAuthManager authManager,
@@ -45,7 +43,6 @@ namespace CouseWork3Semester.Services
             DormitoryRegistry = dormitoryRegistry ?? throw new ArgumentNullException(nameof(dormitoryRegistry));
             OccupantRegistry = occupantRegistry ?? throw new ArgumentNullException(nameof(occupantRegistry));
             SettlementEvictionService = settlementEvictionService ?? throw new ArgumentNullException(nameof(settlementEvictionService));
-            PaymentService = paymentService ?? throw new ArgumentNullException(nameof(paymentService));
             ReportService = reportService ?? throw new ArgumentNullException(nameof(reportService));
             SearchService = searchService ?? throw new ArgumentNullException(nameof(searchService));
             AuthManager = authManager ?? throw new ArgumentNullException(nameof(authManager));
@@ -64,7 +61,6 @@ namespace CouseWork3Semester.Services
             IDormitoryRegistry dormitoryRegistry,
             IOccupantRegistry occupantRegistry,
             ISettlementEvictionService settlementEvictionService,
-            IPaymentService paymentService,
             IReportService reportService,
             ISearchService searchService,
             IAuthManager authManager,
@@ -80,7 +76,6 @@ namespace CouseWork3Semester.Services
                 dormitoryRegistry,
                 occupantRegistry,
                 settlementEvictionService,
-                paymentService,
                 reportService,
                 searchService,
                 authManager,
@@ -258,11 +253,6 @@ namespace CouseWork3Semester.Services
                 default:
                     return null;
             }
-        }
-        // Вспомогательный метод: обновить текущего сотрудника (через интерфейс IEmployee)
-        public void SetCurrentEmployee(IEmployee employee)
-        {
-            CurrentEmployee = employee;
         }
     }
 }

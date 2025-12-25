@@ -5,15 +5,14 @@ namespace CouseWork3Semester.Interfaces
 {
     public interface ISettlementEvictionService
     {
-        // Свойства
-        List<ISettlement> Settlements { get; } // Заселения
-        List<IEviction> Evictions { get; } // Выселения
+        List<ISettlement> Settlements { get; } 
+        List<IEviction> Evictions { get; }
 
-        // Методы
-        void AddSettlement(ISettlement settlement); // ДобавитьЗаселение
-        void AddEviction(IEviction eviction); // ДобавитьВыселение
 
-        // Дополнительные методы
+        void AddSettlement(ISettlement settlement); 
+        void AddEviction(IEviction eviction); 
+
+
         bool RemoveSettlement(Guid settlementId);
         bool RemoveEviction(Guid evictionId);
         ISettlement FindSettlementById(Guid id);

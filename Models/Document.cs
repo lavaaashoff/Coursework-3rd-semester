@@ -135,18 +135,5 @@ namespace CouseWork3Semester.Models
         }
 
         // Дополнительные методы
-
-
-
-        public override bool Equals(object obj)
-        {
-            if (obj is Document other)
-            {
-                return Series == other.Series &&
-                       Number == other.Number &&
-                       Title == other.Title;
-            }
-            return false;
-        }
     }
 }

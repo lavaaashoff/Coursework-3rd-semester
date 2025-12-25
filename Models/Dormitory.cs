@@ -163,35 +163,6 @@ namespace CouseWork3Semester.Models
             return new List<IRoom>(rooms.OrderBy(r => r.Number));
         }
 
-        // Дополнительные методы (не из интерфейса, но полезные)
-
-        public IRoom FindRoom(int roomNumber)
-        {
-            return rooms.FirstOrDefault(r => r.Number == roomNumber);
-        }
-
-        public List<IRoom> GetRoomsByFloor(int floor)
-        {
-            return rooms
-                .Where(r => r.Floor == floor)
-                .OrderBy(r => r.Number)
-                .ToList();
-        }
-
-
-
-        public List<IRoomOccupant> GetAllOccupants()
-        {
-            var allOccupants = new List<IRoomOccupant>();
-
-            foreach (var room in rooms)
-            {
-                allOccupants.AddRange(room.GetAllOccupants());
-            }
-
-            return allOccupants;
-        }
-
         public int GetTotalOccupantsCount()
         {
             return rooms.Sum(room => room.GetAllOccupants().Count);
@@ -214,22 +185,6 @@ namespace CouseWork3Semester.Models
             }
 
             return false;
-        }
-
-        // Переопределение стандартных методов
-
-        public string GetDetailedInfo()
-        {
-            return $"Dormitory Information:\n" +
-                   $"----------------------\n" +
-                   $"Number: {Number}\n" +
-                   $"Address: {Address}\n" +
-                   $"Total Rooms: {rooms.Count}\n" +
-                   $"Total Places: {GetTotalPlacesCount()}\n" +
-                   $"Occupied Places: {GetOccupiedPlacesCount()}\n" +
-                   $"Available Places: {GetAvailablePlacesCount()}\n" +
-                   $"Occupancy: {GetOccupancyPercentage()}%\n" +
-                   $"Photo: {(string.IsNullOrEmpty(PhotoPath) ? "Not set" : PhotoPath)}";
         }
     }
 }

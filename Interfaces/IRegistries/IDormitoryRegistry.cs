@@ -7,10 +7,8 @@ namespace CouseWork3Semester.Interfaces
 {
     public interface IDormitoryRegistry
     {
-        // Свойства
         List<IDormitory> Dormitories { get; }
 
-        // Основные методы
         void AddDormitory(IDormitory dormitory);
         bool RemoveDormitory(int number);
         IDormitory GetDormitoryByNumber(int number);

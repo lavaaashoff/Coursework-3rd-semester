@@ -83,49 +83,5 @@ namespace CouseWork3Semester.Services
                 currentUser = null;
             }
         }
-
-        // Дополнительные методы
-
-        public IEmployee GetCurrentUser()
-        {
-            return currentUser;
-        }
-
-        public bool IsLoggedIn()
-        {
-            return currentUser != null;
-        }
-
-        public bool HasRole(UserRole requiredRole)
-        {
-            if (currentUser == null)
-                return false;
-
-            return currentUser.Role == requiredRole;
-        }
-
-        public void RegisterEmployee(IEmployee newEmployee)
-        {
-            if (newEmployee == null)
-                throw new ArgumentNullException(nameof(newEmployee));
-
-            // Проверяем, нет ли уже сотрудника с таким логином
-            if (employees.Any(e => e.Login == newEmployee.Login))
-                throw new InvalidOperationException($"Сотрудник с логином '{newEmployee.Login}' уже существует");
-
-            employees.Add(newEmployee);
-            Console.WriteLine($"Зарегистрирован новый сотрудник: {newEmployee.FullName}");
-        }
-
-        public List<IEmployee> GetAllEmployees()
-        {
-            return new List<IEmployee>(employees);
-        }
-
-        public override string ToString()
-        {
-            return $"Auth Manager: {employees.Count} сотрудников, " +
-                   $"Текущий пользователь: {(currentUser?.FullName ?? "не авторизован")}";
-        }
     }
 }

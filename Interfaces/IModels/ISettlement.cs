@@ -6,14 +6,12 @@ namespace CouseWork3Semester.Interfaces
 {
     public interface ISettlement
     {
-        // Свойства (без статусов и флага активности)
         Guid Id { get; }
-        DateTime SettlementDate { get; } // ДатаЗаселения
-        List<IRoomOccupant> Occupants { get; } // Жильцы
-        IRoom Room { get; } // Комната
-        IDocument Document { get; } // Документ
+        DateTime SettlementDate { get; } 
+        List<IRoomOccupant> Occupants { get; } 
+        IRoom Room { get; } 
+        IDocument Document { get; } 
 
-        // Методы (упрощённая логика: инициализация сразу выполняет заселение)
         void InitializeSettlement(List<IRoomOccupant> occupants, IRoom room, IDocument document, DateTime date);
         string GetSettlementInfo();
     }

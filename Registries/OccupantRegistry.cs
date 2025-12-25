@@ -103,46 +103,11 @@ namespace CouseWork3Semester.Registries
             return GetAllChildren().Count;
         }
 
-        // Поисковые методы
-
-        public List<IRoomOccupant> FindOccupantsByName(string name)
-        {
-            if (string.IsNullOrWhiteSpace(name))
-                return new List<IRoomOccupant>();
-
-            string searchName = name.ToLower();
-
-            return AllOccupants.Values
-                .Where(o => o.FullName.ToLower().Contains(searchName))
-                .ToList();
-        }
-
-        public List<IRoomOccupant> GetOccupantsByAgeRange(int minAge, int maxAge)
-        {
-            return AllOccupants.Values
-                .Where(o => o.GetAge() >= minAge && o.GetAge() <= maxAge)
-                .ToList();
-        }
-
-        // Получение детей конкретного жильца
         public List<IChild> GetChildrenOfResident(Guid parentId)
         {
             return GetAllChildren()
                 .Where(c => c.ParentResidentId == parentId)
                 .ToList();
-        }
-
-        // Получение родителя ребенка
-        public IResident GetParentOfChild(IChild child)
-        {
-            return GetAllResidents()
-                .FirstOrDefault(r => r.Id == child.ParentResidentId);
-        }
-
-
-        public override string ToString()
-        {
-            return $"Occupant Registry: {GetOccupantsCount()} total ({GetResidentsCount()} adults, {GetChildrenCount()} children)";
         }
     }
 }

@@ -7,7 +7,6 @@ namespace CouseWork3Semester.Interfaces
 {
     public interface IAuthManager
     {
-        // Методы из UML
         IEmployee Login(string login, string password);
         void ChangePassword(IEmployee employee, string oldPassword, string newPassword);
         void Logout();

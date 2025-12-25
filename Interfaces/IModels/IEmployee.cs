@@ -7,7 +7,6 @@ namespace CouseWork3Semester.Interfaces
 {
     public interface IEmployee
     {
-        // Свойства из UML
         string Login { get; }
         string Password { get; }
         string FullName { get; }

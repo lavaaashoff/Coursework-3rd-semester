@@ -121,33 +121,5 @@ namespace CouseWork3Semester.Models
 
             return years;
         }
-
-        public bool IsPassportExpired(int expirationYears = 10)
-        {
-            return GetYearsSinceIssue() > expirationYears;
-        }
-
-        // Переопределение стандартных методов
-
-        public override string ToString()
-        {
-            return GetPassportSeriesAndNumber();
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (obj is Passport other)
-            {
-                return Series == other.Series &&
-                       Number == other.Number &&
-                       IssueDate == other.IssueDate;
-            }
-            return false;
-        }
-
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(Series, Number, IssueDate);
-        }
     }
 }

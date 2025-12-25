@@ -203,33 +203,5 @@ namespace CouseWork3Semester.Services
         {
             return new List<IDocumentOccupantLink>(_links);
         }
-
-        // Дополнительный метод: получить все документы с их жильцами
-        public Dictionary<IDocument, List<IRoomOccupant>> GetAllDocumentsWithOccupants()
-        {
-            var result = new Dictionary<IDocument, List<IRoomOccupant>>();
-
-            foreach (var document in _documentRegistry.GetAllDocuments())
-            {
-                var occupants = GetOccupantsByDocument(document);
-                result[document] = occupants;
-            }
-
-            return result;
-        }
-
-        // Дополнительный метод: получить всех жильцов с их документами
-        public Dictionary<IRoomOccupant, List<IDocument>> GetAllOccupantsWithDocuments()
-        {
-            var result = new Dictionary<IRoomOccupant, List<IDocument>>();
-
-            foreach (var occupant in _occupantRegistry.GetAllOccupants())
-            {
-                var documents = GetDocumentsByOccupant(occupant);
-                result[occupant] = documents;
-            }
-
-            return result;
-        }
     }
 }

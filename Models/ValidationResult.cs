@@ -24,20 +24,5 @@ namespace CouseWork3Semester.Models
             IsValid = false;
             Message = string.Join("; ", Errors);
         }
-
-        public static ValidationResult Success()
-        {
-            return new ValidationResult();
-        }
-
-        public static ValidationResult Failure(params string[] errors)
-        {
-            var result = new ValidationResult();
-            foreach (var error in errors)
-            {
-                result.AddError(error);
-            }
-            return result;
-        }
     }
 }

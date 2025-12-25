@@ -6,14 +6,9 @@ namespace CouseWork3Semester.Interfaces
 {
     public interface IDocumentOccupantLink
     {
-        // Свойства
         Guid Id { get; }
         Guid DocumentId { get; }
-        Guid OccupantId { get; } // Изменили с ResidentId на OccupantId
+        Guid OccupantId { get; }
         DateTime LinkCreatedDate { get; }
-
-        // Методы из UML (адаптированные)
-        //List<Guid> GetOccupantsByDocument(Guid documentId);
-        //List<Guid> GetDocumentsByOccupant(Guid occupantId);
     }
 }

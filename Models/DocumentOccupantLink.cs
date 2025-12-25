@@ -47,16 +47,5 @@ namespace CouseWork3Semester.Models
             if (LinkCreatedDate > DateTime.Now)
                 throw new ArgumentException("Link creation date cannot be in the future", nameof(LinkCreatedDate));
         }
-
-        // Вспомогательные методы
-        public bool IsForDocument(Guid documentId)
-        {
-            return DocumentId == documentId;
-        }
-
-        public bool IsForOccupant(Guid occupantId)
-        {
-            return OccupantId == occupantId;
-        }
     }
 }

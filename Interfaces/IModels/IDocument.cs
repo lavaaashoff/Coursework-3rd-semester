@@ -6,7 +6,6 @@ namespace CouseWork3Semester.Interfaces
 {
     public interface IDocument
     {
-        // Свойства
         Guid Id { get; }
         string Series { get; }
         string Number { get; }
@@ -15,7 +14,6 @@ namespace CouseWork3Semester.Interfaces
         string IssuedBy { get; }
         string Comment { get; set; }
 
-        // Методы
         void ChangeComment(string text);
         string GetFullData();
     }
